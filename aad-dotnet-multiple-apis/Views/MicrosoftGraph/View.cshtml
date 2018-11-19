@@ -1,0 +1,70 @@
+﻿@model IEnumerable<aad_dotnet_multiple_apis.Models.UserModel>
+
+@{
+    ViewBag.Title = "View";
+}
+
+<h2>View</h2>
+
+<p>
+    @Html.ActionLink("View just me", "Me")
+</p>
+<p>
+    @Html.ActionLink("Reconsent", "Reconsent")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.DisplayName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.UserPrincipalName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.OnPremisesDomainName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.OnPremisesImmutableId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.OnPremisesSamAccountName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.OnPremisesUserPrincipalName)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DisplayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.UserPrincipalName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OnPremisesDomainName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OnPremisesImmutableId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OnPremisesSamAccountName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.OnPremisesUserPrincipalName)
+            </td>
+
+        </tr>
+    }
+
+</table>
+
+

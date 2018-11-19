@@ -1,0 +1,12 @@
+﻿@{
+    ViewBag.Title = "Storage";
+}
+<h2>@ViewBag.Title.</h2>
+
+<p>
+    Error message: @ViewBag.Message;
+</p>
+<p>
+    The token for accessing Azure Storage has expired.
+    Click @Html.ActionLink("here", "RefreshSession", "Storage", null, null) to sign-in and get a new access token.
+</p>

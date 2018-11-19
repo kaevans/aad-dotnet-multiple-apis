@@ -1,0 +1,63 @@
+﻿@model IEnumerable<aad_dotnet_multiple_apis.Models.Subscription>
+
+@{
+    ViewBag.Title = "View";
+}
+
+<h2>View</h2>
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.id)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.subscriptionId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.displayName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.state)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Policies.locationPlacementId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Policies.quotaId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Policies.spendingLimit)
+        </th>
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.subscriptionId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.displayName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.state)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Policies.locationPlacementId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Policies.quotaId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Policies.spendingLimit)
+            </td>
+        </tr>
+    }
+
+</table>
