@@ -1,5 +1,10 @@
 # aad-dotnet-multiple-apis
-Example of using multiple APIs with ADAL to Azure-protected resources
+
+Example of using multiple APIs with ADAL to Azure-protected resources.
+
+## Overview of solution
+
+The solution is an ASP.NET MVC web app that authenticates the user using OpenId Connect with the ADAL library and Azure AD. The app is deployed to an Azure App Service that has been assigned a Managed Service Identity (MSI). This MSI is given permission to an Azure Key Vault where the AAD app's clientSecret is stored, avoiding storing any secrets in configuration. Once the user logs in, you can choose from various APIs in the menu to test accessing various services such as Azure Management API, Azure Storage, Azure SQL Database, Azure AD Graph API, and Microsoft Graph API. The access tokens for the application are stored in an Azure SQL Database. 
 
 ## Pre-deployment
 Before deployment, use the Azure CLI to create a new app registration and a client secret. 
@@ -140,4 +145,7 @@ az keyvault list --resource-group multiple-apis --query "[].{name:name}"
 vaultname=$(az keyvault list --resource-group aad-dotnet-multiple-apis --query "[0].name")
 az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
 ````
+
+## Running the solution locally
+If you want to run the solution locally, update the web.config file with the `ida:ClientSecret` value for your app registration and set the `deployType` appSetting value to `local`. 
 
