@@ -1,0 +1,38 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "hostingPlanName": {
+      "value": "kirkehostingplan"
+    },
+    "administratorLogin": {
+      "value": "myadmin"
+    },
+    "databaseName": {
+      "value": "advworks"
+    },
+    "administratorLoginPassword": {
+      "reference": {
+        "keyVault": {
+          "id": "/subscriptions/b697fa44-1b50-43bd-8b36-e93333d56d25/resourceGroups/Data/providers/Microsoft.KeyVault/vaults/BlueSkyVault"
+        },
+        "secretName": "SQLPassword"
+      }
+    },
+    "aadAdminUPN": {
+      "value": "kirkevans@blueskyabove.onmicrosoft.com"
+    },
+    "aadAdminObjectID": {
+      "value": "80127e17-6ced-4ed0-9fd6-87ca84699070"
+    },
+    "clientId": {
+      "value": "45782e73-012e-4ef3-9ecb-560157c8e927"
+    },
+    "tenant": {
+      "value": "blueskyabove.onmicrosoft.com"
+    },
+    "roleAssignmentGuid": {
+      "value": "b1b9fffc-112e-4d14-b0d5-611b16222c05"
+    }
+  }
+}
