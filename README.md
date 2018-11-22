@@ -1,8 +1,10 @@
 # aad-dotnet-multiple-apis
 Example of using multiple APIs with ADAL to Azure-protected resources
 
-## Deployment
-Create a JSON file with the following contents:
+## Pre-deployment
+Before deployment, use the Azure CLI to create a new app registration and a client secret. 
+
+Create a JSON file named `manifest.json` with the following contents:
 
 ````json
 [
@@ -77,15 +79,21 @@ Create a JSON file with the following contents:
     }
   ]
 ````
-
-## Pre-deployment
-Before deployment, use the Azure CLI to create a new app registration and a client secret. 
+Once the manifest.json file is created, create a new app registration referencing this file. Grab the user's object ID and the AAD tenant ID
 
 ````bash
-password=$(openssl rand -base64 32)
-az ad app create --display-name cliapptest --homepage http://manyapps --identifier-uris https://manyapps --required-resource-accesses manifest.json --password $password
+clientSecret=$(openssl rand -base64 32)
+az ad app create --display-name cliapptest --homepage http://manyapps --identifier-uris https://manyapps --required-resource-accesses manifest.json --password $clientSecret
+appId=$(az ad app show --id https://manyapps --query "appId")
+
+userObectId=$(az ad user show --upn-or-object-id kirkevans@blueskyabove.onmicrosoft.com --query "objectId")
+tenantId=$(az account show --subscription msdn --query "tenantId")
+
+sqlAdminPassword=$(openssl rand -base64 32)
+
+roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
 ````
-Copy the resulting `appId` value from the JSON output.
+This script created the app registration and stored the resulting value in a variable `appId` that will be used in the next step.
 
 
 ## Deploying the tempalte
@@ -101,12 +109,12 @@ az group deployment create \
   --parameters hostingPlanName=kirkeplan \
       administratorLogin=myAdmin \
       databaseName=advworks \
-      administratorLoginPassword=somepassword \
+      administratorLoginPassword=$sqlAdminPassword \
       aadAdminUPN="kirke@microsoft.com" \
-      aadAdminObjectID=45782e73-012e-4ef3-9ecb-560157c8e927 \
-      clientId=45782e73-012e-4ef3-9ecb-560157c8e927 \
+      aadAdminObjectID=$userObectId \
+      clientId=$appId \
       tenant=blueskyabove.onmicrosoft.com \
-      roleAssignmentGuid=b1b9fffc-112e-4d14-b0d5-611b16222c05
+      roleAssignmentGuid=$roleAssignmentGuid
 ````
 The following table describes the various parameters used.
 
@@ -130,6 +138,6 @@ After deployment, use the Azure CLI to create a secret in the newly created Azur
 #Find the new KeyVault
 az keyvault list --resource-group multiple-apis --query "[].{name:name}"
 vaultname=$(az keyvault list --resource-group aad-dotnet-multiple-apis --query "[0].name")
-az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $password
+az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
 ````
 
