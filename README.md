@@ -4,102 +4,7 @@ Example of using multiple APIs with ADAL to Azure-protected resources.
 
 ## Overview of solution
 
-The solution is an ASP.NET MVC web app that authenticates the user using OpenId Connect with the ADAL library and Azure AD. The app is deployed to an Azure App Service that has been assigned a Managed Service Identity (MSI). This MSI is given permission to an Azure Key Vault where the AAD app's clientSecret is stored, avoiding storing any secrets in configuration. Once the user logs in, you can choose from various APIs in the menu to test accessing various services such as Azure Management API, Azure Storage, Azure SQL Database, Azure AD Graph API, and Microsoft Graph API. The access tokens for the application are stored in an Azure SQL Database. 
-
-## Pre-deployment
-Before deployment, use the Azure CLI to create a new app registration and a client secret. 
-
-Create a JSON file named `manifest.json` with the following contents:
-
-````json
-[
-    {
-      "resourceAppId": "00000003-0000-0000-c000-000000000000",
-      "resourceAccess": [
-        {
-          "id": "b340eb25-3456-403f-be2f-af7a0d370277",
-          "type": "Scope"
-        },
-        {
-          "id": "e1fe6dd8-ba31-4d61-89e7-88639da4683d",
-          "type": "Scope"
-        },
-        {
-          "id": "7427e0e9-2fba-42fe-b0c0-848c9e6a8182",
-          "type": "Scope"
-        },
-        {
-          "id": "14dad69e-099b-42c9-810b-d002981feec1",
-          "type": "Scope"
-        },
-        {
-          "id": "64a6cdd6-aab1-4aaf-94b8-3cc8405e90d0",
-          "type": "Scope"
-        },
-        {
-          "id": "37f7f235-527c-4136-accd-4a02d197296e",
-          "type": "Scope"
-        },
-        {
-          "id": "b4e74841-8e56-480b-be8b-910348b18b4c",
-          "type": "Scope"
-        }
-      ]
-    },
-    {
-      "resourceAppId": "e406a681-f3d4-42a8-90b6-c2b029497af1",
-      "resourceAccess": [
-        {
-          "id": "03e0da56-190b-40ad-a80c-ea378c433f7f",
-          "type": "Scope"
-        }
-      ]
-    },
-    {
-      "resourceAppId": "022907d3-0f1b-48f7-badc-1ba6abab6d66",
-      "resourceAccess": [
-        {
-          "id": "c39ef2d1-04ce-46dc-8b5f-e9a5c60f0fc9",
-          "type": "Scope"
-        }
-      ]
-    },
-    {
-      "resourceAppId": "797f4846-ba00-4fd7-ba43-dac1f8f63013",
-      "resourceAccess": [
-        {
-          "id": "41094075-9dad-400e-a0bd-54e686782033",
-          "type": "Scope"
-        }
-      ]
-    },
-    {
-      "resourceAppId": "00000002-0000-0000-c000-000000000000",
-      "resourceAccess": [
-        {
-          "id": "311a71cc-e848-46a1-bdf8-97ff7156d8e6",
-          "type": "Scope"
-        }
-      ]
-    }
-  ]
-````
-Once the manifest.json file is created, create a new app registration referencing this file. Grab the user's object ID and the AAD tenant ID
-
-````bash
-clientSecret=$(openssl rand -base64 32)
-az ad app create --display-name cliapptest --homepage http://manyapps --identifier-uris https://manyapps --required-resource-accesses manifest.json --password $clientSecret
-appId=$(az ad app show --id https://manyapps --query "appId")
-
-userObjectId=$(az ad user show --upn-or-object-id kirkevans@blueskyabove.onmicrosoft.com --query "objectId")
-tenantId=$(az account show --subscription msdn --query "tenantId")
-
-sqlAdminPassword=$(openssl rand -base64 32)
-
-roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
-````
-This script created the app registration and stored the resulting value in a variable `appId` that will be used in the next step.
-
+The solution is an ASP.NET MVC web app that authenticates the user using OpenId Connect with the ADAL library and Azure AD. The app is deployed to an Azure App Service that has been assigned a Managed Service Identity (MSI). This MSI is given permission to an Azure Key Vault where the AAD app's clientSecret is stored, avoiding storing any secrets in configuration. Once the user logs in, you can choose from various APIs in the menu to test accessing various services such as Azure Management API, Azure Storage, Azure SQL Database, Azure AD Graph API, and Microsoft Graph API. The access tokens for the application are stored in an Azure SQL Database.
 
 ## Deploying the template
 
@@ -108,7 +13,6 @@ To deploy the solution:
 - Go to the Azure Portal and **open** the Azure Cloud Shell using Bash.
 - Use the upload button to **upload** `manifest.json` and `azuredeploy.json` from the paas-deploy project.
 - Run the following commands, providing your own values for the parameters.
-
 
 ```bash
 #!/bin/bash
@@ -170,7 +74,8 @@ clientID | The `appId` of the newly created app registration created prior to de
 tenant | The Azure AD tenant name | blueskyabove.onmicrosoft.com
 roleAssignmentGuid | A guid that uniquely identifies the assignment of a user to a role. | b1b9fffc-112e-4d14-b0d5-611b16222c05
 
-
 ## Running the solution locally
-If you want to run the solution locally, update the web.config file with the `ida:ClientSecret` value for your app registration and set the `deployType` appSetting value to `local`. 
+If you want to run the solution locally, update the web.config file with the `ida:ClientSecret` value for your app registration and set the `deployType` appSetting value to `local`.
 
+## Troubleshooting
+The deployment from GitHub to the web app occasionally fails. Go to the Azure Portal, find the web app, go to the Deployment Center, and re-deploy the app. And if you figure out why it doesn't consistently deploy, feel free to submit a pull request.
