@@ -1,5 +1,4 @@
-﻿using aad_dotnet_multiple_apis.Cache;
-using aad_dotnet_multiple_apis.Models;
+﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Newtonsoft.Json;
 using System;
@@ -16,7 +15,7 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: ARM
         public async Task<ActionResult> Index()
         {
-            var authHelper = new AuthHelper(new DbTokenCache(AuthHelper.ClaimsSignedInUserID));
+            var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
 
             var accessToken = await authHelper.GetTokenForApplication(AuthHelper.AzureManagementResourceId);
             List<Subscription> subscriptions = null;

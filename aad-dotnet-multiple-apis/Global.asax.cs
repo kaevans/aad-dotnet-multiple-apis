@@ -16,7 +16,6 @@ namespace aad_dotnet_multiple_apis
             FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
             RouteConfig.RegisterRoutes(RouteTable.Routes);
             BundleConfig.RegisterBundles(BundleTable.Bundles);
-            KeyConfig.RegisterKeys();
         }
     }
 }

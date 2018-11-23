@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.28307.102
+VisualStudioVersion = 15.0.28307.106
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aad-dotnet-multiple-apis", "aad-dotnet-multiple-apis\aad-dotnet-multiple-apis.csproj", "{ED43513A-CB03-4E48-8F67-5C2A2D23B147}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aad-dotnet-multiple-apis", "aad-dotnet-multiple-apis\aad-dotnet-multiple-apis.csproj", "{EC9DD52D-9201-4E92-B6B3-12D313E5C02F}"
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "paas-deploy", "paas-deploy\paas-deploy.deployproj", "{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}"
 EndProject
@@ -13,10 +13,10 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{ED43513A-CB03-4E48-8F67-5C2A2D23B147}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{ED43513A-CB03-4E48-8F67-5C2A2D23B147}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{ED43513A-CB03-4E48-8F67-5C2A2D23B147}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{ED43513A-CB03-4E48-8F67-5C2A2D23B147}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EC9DD52D-9201-4E92-B6B3-12D313E5C02F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EC9DD52D-9201-4E92-B6B3-12D313E5C02F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EC9DD52D-9201-4E92-B6B3-12D313E5C02F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EC9DD52D-9201-4E92-B6B3-12D313E5C02F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -26,6 +26,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
-		SolutionGuid = {DD244712-92E4-4A2F-8C25-FD1C78A5D31B}
+		SolutionGuid = {A8CCF0CA-BC6B-4C06-A2A2-DAD93E718527}
 	EndGlobalSection
 EndGlobal

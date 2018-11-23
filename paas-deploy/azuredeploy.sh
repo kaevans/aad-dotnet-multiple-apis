@@ -1,13 +1,13 @@
 #!/bin/bash
-rg='multiple-apis'
+rg='multipleapis'
 location='centralus'
-appIdUrl='https://manyapitest'
+appIdUrl='https://multipleapis'
 tenantName='blueskyabove.onmicrosoft.com'
-displayName='manyapisdemo'
+displayName='multipleapis'
 
 #Create AAD application registration
 clientSecret=$(openssl rand -base64 32)
-az ad app create --display-name $displayName --homepage $appIdUrl --identifier-uris $appIdUrl --required-resource-accesses manifest.json --password $clientSecret
+az ad app create --display-name $displayName --homepage https://localhost:44320/ --identifier-uris $appIdUrl --required-resource-accesses manifest.json --password $clientSecret
 appId=$(az ad app show --id $appIdUrl --query "appId" --output tsv)
 
 #Get user and tenant information
@@ -34,6 +34,7 @@ az group deployment create \
 vaultname=$(az keyvault list --resource-group $rg --query "[0].name" --output tsv)
 az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
 
-#Add the web app's URL as a reply URL to the registered AAD application
+#Add the web app's URL as a reply URL to the registered AAD application.
+#Update the client secret in case the app already existed and a new password was generated.
 webapp=https://$(az webapp list --resource-group $rg --query "[0].defaultHostName" --output tsv)
-az ad app update --id $appId --reply-urls $webapp
+az ad app update --id $appId --password $clientSecret --reply-urls $webapp https://localhost:44320/

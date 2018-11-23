@@ -1,5 +1,4 @@
-﻿using aad_dotnet_multiple_apis.Cache;
-using aad_dotnet_multiple_apis.Models;
+﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.Graph;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
@@ -21,7 +20,7 @@ namespace aad_dotnet_multiple_apis.Controllers
 
             try
             {
-                var authHelper = new AuthHelper(new DbTokenCache(AuthHelper.ClaimsSignedInUserID));
+                var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
 
 
                 var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
@@ -70,7 +69,7 @@ namespace aad_dotnet_multiple_apis.Controllers
 
             try
             {
-                var authHelper = new AuthHelper(new DbTokenCache(AuthHelper.ClaimsSignedInUserID));
+                var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
                 var accessToken = await authHelper.GetTokenForApplication(AuthHelper.MicrosoftGraphResourceId);
 
                 var graphServiceClient = new GraphServiceClient("https://graph.microsoft.com/beta", new DelegateAuthenticationProvider((requestMessage) =>

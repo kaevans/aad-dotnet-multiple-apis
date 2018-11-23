@@ -1,5 +1,4 @@
-﻿using aad_dotnet_multiple_apis.Cache;
-using aad_dotnet_multiple_apis.Models;
+﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
@@ -19,7 +18,7 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: Storage
         public async Task<ActionResult> Index()
         {
-            var tokenHelper = new AuthHelper(new DbTokenCache(AuthHelper.ClaimsSignedInUserID));
+            var tokenHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
 
 
             var items = new System.Collections.Generic.List<StorageModel>();

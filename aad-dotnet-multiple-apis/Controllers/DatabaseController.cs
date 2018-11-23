@@ -1,5 +1,4 @@
-﻿using aad_dotnet_multiple_apis.Cache;
-using aad_dotnet_multiple_apis.Models;
+﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using System;
 using System.Configuration;
@@ -15,7 +14,7 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: Database
         public async Task<ActionResult> Index()
         {
-            var authHelper = new AuthHelper(new DbTokenCache(AuthHelper.ClaimsSignedInUserID));
+            var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
             var sqlConnectionString = ConfigurationManager.ConnectionStrings["DemoDB"].ConnectionString;
 
             string databaseUserID = default(string);

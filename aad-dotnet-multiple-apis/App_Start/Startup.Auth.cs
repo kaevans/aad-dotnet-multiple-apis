@@ -1,20 +1,23 @@
-﻿using aad_dotnet_multiple_apis.Cache;
-using aad_dotnet_multiple_apis.Models;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
+﻿using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Globalization;
+using System.IdentityModel.Claims;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Web;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Owin;
-using System;
-using System.IdentityModel.Claims;
-using System.Threading.Tasks;
-using System.Web;
+using aad_dotnet_multiple_apis.Models;
 
 namespace aad_dotnet_multiple_apis
 {
     public partial class Startup
     {
-
+        
 
         public void ConfigureAuth(IAppBuilder app)
         {
@@ -30,8 +33,6 @@ namespace aad_dotnet_multiple_apis
                     ClientId = AuthHelper.ClientId,
                     Authority = AuthHelper.Authority,
                     PostLogoutRedirectUri = AuthHelper.PostLogoutRedirectUri,
-                    //RedirectUri required if multiple reply URLs are configured in AAD
-                    RedirectUri = AuthHelper.ReplyUrl,
 
                     Notifications = new OpenIdConnectAuthenticationNotifications()
                     {
@@ -39,16 +40,19 @@ namespace aad_dotnet_multiple_apis
                        AuthorizationCodeReceived = (context) => 
                        {
                            System.Diagnostics.Trace.WriteLine("OpenId Connect authorization code received");
+
                            var code = context.Code;
                            ClientCredential credential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
-                           var signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
+                           string signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
                            System.Diagnostics.Trace.WriteLine("SignedInUserID: " + signedInUserID);
-                           AuthenticationContext authContext = new AuthenticationContext(AuthHelper.Authority, new DbTokenCache(signedInUserID));
+
+                           AuthenticationContext authContext = new AuthenticationContext(AuthHelper.Authority, new ADALTokenCache(signedInUserID));
                            AuthenticationResult result = authContext.AcquireTokenByAuthorizationCodeAsync(
                                code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, AuthHelper.AzureADGraphResourceId).Result;
 
                            System.Diagnostics.Trace.WriteLine("Token received");
+
                            return Task.FromResult(0);
                        },
                         RedirectToIdentityProvider = (notification) =>
@@ -67,6 +71,21 @@ namespace aad_dotnet_multiple_apis
                         }
                     }
                 });
+        }
+
+        private static string EnsureTrailingSlash(string value)
+        {
+            if (value == null)
+            {
+                value = string.Empty;
+            }
+
+            if (!value.EndsWith("/", StringComparison.Ordinal))
+            {
+                return value + "/";
+            }
+
+            return value;
         }
     }
 }

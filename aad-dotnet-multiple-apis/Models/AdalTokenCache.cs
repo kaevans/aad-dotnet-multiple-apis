@@ -1,19 +1,21 @@
-﻿using aad_dotnet_multiple_apis.Models;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using System;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Web;
 using System.Web.Security;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
-namespace aad_dotnet_multiple_apis.Cache
+namespace aad_dotnet_multiple_apis.Models
 {
-    public class DbTokenCache : TokenCache
+    public class ADALTokenCache : TokenCache
     {
         private ApplicationDbContext db = new ApplicationDbContext();
         private string userId;
         private UserTokenCache Cache;
 
-        public DbTokenCache(string signedInUserId)
+        public ADALTokenCache(string signedInUserId)
         {
             // associate the cache to the current user of the web app
             userId = signedInUserId;
