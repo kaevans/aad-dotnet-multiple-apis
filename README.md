@@ -91,7 +91,7 @@ clientSecret=$(openssl rand -base64 32)
 az ad app create --display-name cliapptest --homepage http://manyapps --identifier-uris https://manyapps --required-resource-accesses manifest.json --password $clientSecret
 appId=$(az ad app show --id https://manyapps --query "appId")
 
-userObectId=$(az ad user show --upn-or-object-id kirkevans@blueskyabove.onmicrosoft.com --query "objectId")
+userObjectId=$(az ad user show --upn-or-object-id kirkevans@blueskyabove.onmicrosoft.com --query "objectId")
 tenantId=$(az account show --subscription msdn --query "tenantId")
 
 sqlAdminPassword=$(openssl rand -base64 32)
@@ -101,50 +101,75 @@ roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
 This script created the app registration and stored the resulting value in a variable `appId` that will be used in the next step.
 
 
-## Deploying the tempalte
+## Deploying the template
 
-An example script with sample values is shown. Replace the parameter values with your own.
+To deploy the solution:
 
-````bash
-az group create --name 'multiple-apis' --location centralus
+- Go to the Azure Portal and **open** the Azure Cloud Shell using Bash.
+- Use the upload button to **upload** `manifest.json` and `azuredeploy.json` from the paas-deploy project.
+- Run the following commands, providing your own values for the parameters.
+
+
+```bash
+#!/bin/bash
+rg='multiple-apis'
+location='centralus'
+appIdUrl='https://manyapitest'
+tenantName='blueskyabove.onmicrosoft.com'
+displayName='manyapisdemo'
+
+#Create AAD application registration
+clientSecret=$(openssl rand -base64 32)
+az ad app create --display-name $displayName --homepage $appIdUrl --identifier-uris $appIdUrl --required-resource-accesses manifest.json --password $clientSecret
+appId=$(az ad app show --id $appIdUrl --query "appId" --output tsv)
+
+#Get user and tenant information
+userUPN=$(az account show --query "user.name" --o tsv)
+userObjectId=$(az ad user show --upn-or-object-id $userUPN --query "objectId" --o tsv)
+tenantId=$(az account show --query "tenantId" --o tsv)
+
+#Generate Azure SQL Database admin password
+sqlAdminLogin='myAdmin'
+sqlPassword=$(openssl rand -base64 32)
+
+#Generate a random GUID for the role assignment ID
+roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
+
+az group create --name $rg --location $location
+
 az group deployment create \
   --name "multiple-apis-deployment" \
-  --resource-group "multiple-apis" \
+  --resource-group $rg \
   --template-file "azuredeploy.json" \
-  --parameters hostingPlanName=kirkeplan \
-      administratorLogin=myAdmin \
-      databaseName=advworks \
-      administratorLoginPassword=$sqlAdminPassword \
-      aadAdminUPN="kirke@microsoft.com" \
-      aadAdminObjectID=$userObectId \
-      clientId=$appId \
-      tenant=blueskyabove.onmicrosoft.com \
-      roleAssignmentGuid=$roleAssignmentGuid
-````
+  --parameters hostingPlanName=$displayName sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword databaseName=advworks aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId tenant=$tenantName roleAssignmentGuid=$roleAssignmentGuid
+
+#Add the app's client secret to the newly created vault
+vaultname=$(az keyvault list --resource-group $rg --query "[0].name" --output tsv)
+az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
+
+#Add the web app's URL as a reply URL to the registered AAD application
+webapp=https://$(az webapp list --resource-group $rg --query "[0].defaultHostName" --output tsv)
+az ad app update --id $appId --reply-urls $webapp
+```
+
+The same script (`azuredeploy.sh`) is available in the paas-deploy project.
+
+## Deployment parameters description
+
 The following table describes the various parameters used.
 
 Property Name | Description | Sample Value
 --- | --- | ---
 hostingPlanName | Name of the App Service plan | kirkeplan
-administratorLogin | The administrator login for the Azure SQL server | myadmin
-administratorLoginPassword | The administrator password for the Azure SQL server | somepassword
+sqlAdminLogin | The administrator login for the Azure SQL server | myadmin
+sqlAdminPassword | The administrator password for the Azure SQL server | somepassword
 databaseName | The name of the Azure SQL Database | advworks
-aadAdminUPN | Your user principal name in Azure AD | kirke@microsoft.com
-aadAdminObjectID | The object ID of your user object in Azure AD | 45782e73-012e-4ef3-9ecb-560157c8e927
+aadUserUPN | Your user principal name in Azure AD | kirke@microsoft.com
+aadUserObjectID | The object ID of your user object in Azure AD | 45782e73-012e-4ef3-9ecb-560157c8e927
 clientID | The `appId` of the newly created app registration created prior to deployment | 45782e73-012e-4ef3-9ecb-560157c8e927
 tenant | The Azure AD tenant name | blueskyabove.onmicrosoft.com
 roleAssignmentGuid | A guid that uniquely identifies the assignment of a user to a role. | b1b9fffc-112e-4d14-b0d5-611b16222c05
 
-## Post-deployment
-
-After deployment, use the Azure CLI to create a secret in the newly created Azure Key Vault. The secret must be named `multiple-apis-client-secret` and must have the password used when creating the app registration in the pre-deployment step above.
-
-````bash
-#Find the new KeyVault
-az keyvault list --resource-group multiple-apis --query "[].{name:name}"
-vaultname=$(az keyvault list --resource-group aad-dotnet-multiple-apis --query "[0].name")
-az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
-````
 
 ## Running the solution locally
 If you want to run the solution locally, update the web.config file with the `ida:ClientSecret` value for your app registration and set the `deployType` appSetting value to `local`. 

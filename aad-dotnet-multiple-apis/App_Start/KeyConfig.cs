@@ -34,6 +34,7 @@ namespace aad_dotnet_multiple_apis
 
         private static void UseVMMSIUrl()
         {
+            System.Diagnostics.Trace.WriteLine("UseVMMSIUrl");
             //Use MSI to contact Key Vault
             var keyVaultClient = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(
                async (authority, resource, scope) =>
@@ -44,7 +45,7 @@ namespace aad_dotnet_multiple_apis
 
                    // Call /token endpoint
                    var response = (HttpWebResponse)await request.GetResponseAsync();
-                   System.Diagnostics.Debug.WriteLine("Got token response from MSI");
+                   System.Diagnostics.Trace.WriteLine("Got response from MSI URL");
 
                    // Pipe response Stream to a StreamReader, and extract access token
                    var streamResponse = new StreamReader(response.GetResponseStream());
@@ -53,35 +54,42 @@ namespace aad_dotnet_multiple_apis
                    Dictionary<string, string> list = (Dictionary<string, string>)j.Deserialize(stringResponse, typeof(Dictionary<string, string>));
                    string accessToken = list["access_token"];
 
+                   System.Diagnostics.Trace.WriteLine("Token received");
+
                    return accessToken;
                }));
 
             var keyVaultUrl = ConfigurationManager.AppSettings["KeyVaultUrl"];
-            var secret = keyVaultClient.GetSecretAsync(keyVaultUrl, "multiple-apis-client-secret").GetAwaiter().GetResult();
+            var secret = keyVaultClient.GetSecretAsync(keyVaultUrl, "multiple-apis-client-secret").GetAwaiter().GetResult();            
 
             HttpContext.Current.Application["ida:ClientSecret"] = secret.Value;
             System.Diagnostics.Debug.WriteLine("Client secret stored in Application state from KeyVault");
+
+            System.Diagnostics.Trace.WriteLine("Secret retrieved");
         }
 
         private static void UseAzureServiceTokenProvider()
         {
+            System.Diagnostics.Trace.WriteLine("UseAzureServiceTokenProvider");
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
             var kv = new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
 
             var keyVaultUrl = ConfigurationManager.AppSettings["KeyVaultUrl"];
 
-            var secret = kv.GetSecretAsync(keyVaultUrl, "multiple-apis-client-secret").GetAwaiter().GetResult();
+            var secret = kv.GetSecretAsync(keyVaultUrl, "multiple-apis-client-secret").GetAwaiter().GetResult();            
 
             HttpContext.Current.Application["ida:ClientSecret"] = secret.Value;
-            System.Diagnostics.Debug.WriteLine("Client secret stored in Application state from KeyVault");
+
+            System.Diagnostics.Trace.WriteLine("Secret retrieved");
         }
 
         private static void UseConfig()
         {
+            System.Diagnostics.Trace.WriteLine("UseConfig");
             //Fallback to using the key from configuration 
             string key = ConfigurationManager.AppSettings["ida:ClientSecret"];
             HttpContext.Current.Application["ida:ClientSecret"] = key;
-            System.Diagnostics.Debug.WriteLine("Client secret stored in Application state from configuration file");
+            System.Diagnostics.Trace.WriteLine("Secret retrieved");
         }
     }
 }

@@ -38,14 +38,17 @@ namespace aad_dotnet_multiple_apis
                         // If there is a code in the OpenID Connect response, redeem it for an access token and refresh token, and store those away.
                        AuthorizationCodeReceived = (context) => 
                        {
+                           System.Diagnostics.Trace.WriteLine("OpenId Connect authorization code received");
                            var code = context.Code;
                            ClientCredential credential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
                            var signedInUserID = context.AuthenticationTicket.Identity.FindFirst(ClaimTypes.NameIdentifier).Value;
 
+                           System.Diagnostics.Trace.WriteLine("SignedInUserID: " + signedInUserID);
                            AuthenticationContext authContext = new AuthenticationContext(AuthHelper.Authority, new DbTokenCache(signedInUserID));
                            AuthenticationResult result = authContext.AcquireTokenByAuthorizationCodeAsync(
                                code, new Uri(HttpContext.Current.Request.Url.GetLeftPart(UriPartial.Path)), credential, AuthHelper.AzureADGraphResourceId).Result;
 
+                           System.Diagnostics.Trace.WriteLine("Token received");
                            return Task.FromResult(0);
                        },
                         RedirectToIdentityProvider = (notification) =>
@@ -57,6 +60,7 @@ namespace aad_dotnet_multiple_apis
 
                             if (consent == "RenewConsent")
                             {
+                                System.Diagnostics.Trace.WriteLine("Renewing consent");
                                 notification.ProtocolMessage.Prompt = "consent";
                             }
                             return Task.FromResult(0);

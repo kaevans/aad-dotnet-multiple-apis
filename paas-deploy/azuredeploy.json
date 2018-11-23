@@ -42,19 +42,19 @@
         "description": "Describes plan's instance count"
       }
     },
-    "administratorLogin":
+    "sqlAdminLogin":
     {
       "type": "string"
     },
-    "administratorLoginPassword":
+    "sqlAdminPassword":
     {
       "type": "securestring"
     },
-    "aadAdminUPN":
+    "aadUserUPN":
     {
       "type": "string"
     },
-    "aadAdminObjectID":
+    "aadUserObjectID":
     {
       "type": "string"
     },
@@ -171,7 +171,7 @@
       "properties":
       {
         "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-        "principalId": "[parameters('aadAdminObjectID')]",
+        "principalId": "[parameters('aadUserObjectID')]",
         "scope": "[resourceGroup().id]"
       }
     },
@@ -211,8 +211,8 @@
       "apiVersion": "2014-04-01-preview",
       "properties":
       {
-        "administratorLogin": "[parameters('administratorLogin')]",
-        "administratorLoginPassword": "[parameters('administratorLoginPassword')]"
+        "administratorLogin": "[parameters('sqlAdminLogin')]",
+        "administratorLoginPassword": "[parameters('sqlAdminPassword')]"
       },
       "resources":
       [
@@ -260,8 +260,8 @@
           "properties":
           {
             "administratorType": "ActiveDirectory",
-            "login": "[parameters('aadAdminUPN')]",
-            "sid": "[parameters('aadAdminObjectID')]",
+            "login": "[parameters('aadUserUPN')]",
+            "sid": "[parameters('aadUserObjectID')]",
             "tenantId": "[variables('tenantId')]"
           },
           "dependsOn":
@@ -329,7 +329,7 @@
           {
             "DefaultConnection":
             {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('administratorLogin'), '@', variables('sqlserverName'), ';Password=', parameters('administratorLoginPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdminLogin'), '@', variables('sqlserverName'), ';Password=', parameters('sqlAdminPassword'), ';')]",
               "type": "SQLServer"
             },
             "DemoDB":
@@ -406,9 +406,75 @@
                 "get"
               ]
             }
+          },
+          {
+            "objectId": "[parameters('aadUserObjectID')]",
+            "tenantId": "[variables('tenantId')]",
+            "permissions":
+            {
+              "keys":
+              [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "secrets":
+              [
+                "Get",
+                "List",
+                "Set",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore"
+              ],
+              "certificates":
+              [
+                "Get",
+                "List",
+                "Update",
+                "Create",
+                "Import",
+                "Delete",
+                "Recover",
+                "Backup",
+                "Restore",
+                "ManageContacts",
+                "ManageIssuers",
+                "GetIssuers",
+                "ListIssuers",
+                "SetIssuers",
+                "DeleteIssuers"
+              ]
+            }
           }
         ]
       }
     }
-  ]
+  ],
+  "outputs":
+  {
+    "appUrl":
+    {
+      "type": "string",
+      "value": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]"
+    },
+    "blobUrl":
+    {
+
+      "type": "string",
+      "value": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageName')), '2016-01-01').primaryEndpoints.blob]"
+    },
+    "vaultUrl":
+    {
+      "type": "string",
+      "value": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]"
+    }
+  }
 }
