@@ -36,5 +36,5 @@ az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secr
 
 #Add the web app's URL as a reply URL to the registered AAD application.
 #Update the client secret in case the app already existed and a new password was generated.
-webapp=https://$(az webapp list --resource-group $rg --query "[0].defaultHostName" --output tsv)
+webapp=https://$(az webapp list --resource-group $rg --query "[0].defaultHostName" --output tsv)/
 az ad app update --id $appId --password $clientSecret --reply-urls $webapp https://localhost:44320/
