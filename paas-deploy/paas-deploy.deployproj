@@ -32,4 +32,9 @@
     <Content Include="azuredeploy.parameters.json" />
   </ItemGroup>
   <Target Name="GetReferenceAssemblyPaths" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <UserProperties azuredeploy_1json__JSONSchema="" />
+    </VisualStudio>
+  </ProjectExtensions>
 </Project>

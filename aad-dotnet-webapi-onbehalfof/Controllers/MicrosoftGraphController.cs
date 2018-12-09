@@ -36,13 +36,11 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
         // To authenticate to the Graph API, the app needs to know the Grah API's App ID URI.
         // To contact the Me endpoint on the Graph API we need the URL as well.
         //
-        private static string graphResourceId = ConfigurationManager.AppSettings["ida:GraphResourceId"];
-        private static string graphUserUrl = ConfigurationManager.AppSettings["ida:GraphUserUrl"];
+        private static string graphResourceId = "https://graph.microsoft.com";
+        
         private const string TenantIdClaimType = "http://schemas.microsoft.com/identity/claims/tenantid";
 
-        //
-        // To Do items list for all users.  Since the list is stored in memory, it will go away if the service is cycled.
-        //
+        
         
 
         // Error Constants

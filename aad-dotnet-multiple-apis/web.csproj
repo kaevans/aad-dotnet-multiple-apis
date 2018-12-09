@@ -302,6 +302,7 @@
     <Content Include="Views\Storage\Relogin.cshtml" />
     <Content Include="Views\Values\Index.cshtml" />
     <Content Include="Views\OnBehalfOf\Index.cshtml" />
+    <Content Include="appSettings.secrets" />
     <Content Include="Views\Storage\Details.cshtml" />
   </ItemGroup>
   <ItemGroup>
