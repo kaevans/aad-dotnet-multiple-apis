@@ -9,6 +9,7 @@ apiDisplayName='aad-dotnet-webapi-onbehalfof'
 apiClientSecret=$(openssl rand -base64 32)
 az ad app create --display-name $apiDisplayName --homepage https://localhost:44330/ --identifier-uris $apiAppIdUrl --password $apiClientSecret
 apiAppId=$(az ad app show --id $apiAppIdUrl --query "appId" --output tsv)
+az ad sp create --id $apiAppId
 
 #Create AAD application registration for web application
 appIdUrl=https://$tenantName/aad-dotnet-multiple-apis
@@ -35,13 +36,13 @@ roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
 
 #Assign the user to the Storage Blob Data Contributor role
 roleDefinitionId=$(az role definition list --query "[?roleName == 'Storage Blob Data Contributor (Preview)'].id" --output tsv)
-az role assignment create --assignee $userObjectId --role $roleDefinitionId --resource-group $rg --scope /subscriptions/$subscriptionId/resourceGroups/$rg
+az role assignment create --assignee $userObjectId --role $roleDefinitionId --resource-group $rg
 
 az group deployment create \
   --name "multiple-apis-deployment" \
   --resource-group $rg \
   --template-file "azuredeploy.json" \
-  --parameters sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId tenant=$tenantName apiClientSecret=$apiClientSecret
+  --parameters sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId tenant=$tenantName
 
 #Add the client secrets to the newly created vault
 vaultname=$(az keyvault list --resource-group $rg --query "[0].name" --output tsv)
