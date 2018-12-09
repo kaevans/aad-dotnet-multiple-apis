@@ -262,7 +262,7 @@
             "ida:PostLogoutRedirectUri": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
             "StorageAccountUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageName')), '2016-01-01').primaryEndpoints.blob]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
-            "PROJECT": "aad-dotnet-multipleapis\\aad-dotnet-multiple-apis.csproj"
+            "PROJECT": "aad-dotnet-multipleapis"
           }
         },
         {
@@ -349,7 +349,7 @@
             "ida:ClientId": "[parameters('clientId')]",
             "ida:AADInstance": "[parameters('aadInstance')]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
-            "PROJECT": "aad-dotnet-multipleapis\\aad-dotnet-webapi-onbehalfof.csproj"
+            "PROJECT": "aad-dotnet-multipleapis"
           }
         },
         {
