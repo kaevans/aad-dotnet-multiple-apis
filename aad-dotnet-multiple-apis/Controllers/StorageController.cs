@@ -5,6 +5,7 @@ using Microsoft.WindowsAzure.Storage.Blob;
 using System;
 using System.Configuration;
 using System.IO;
+using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web.Mvc;
@@ -14,37 +15,36 @@ namespace aad_dotnet_multiple_apis.Controllers
     [Authorize]
     public class StorageController : Controller
     {
-
-        // GET: Storage
-        public async Task<ActionResult> Index()
+        private async Task<CloudBlobClient> GetStorageClient()
         {
             var tokenHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
 
+            var accessToken = await tokenHelper.GetTokenForApplication(AuthHelper.AzureStorageResourceId);
 
+            // Use the access token to create the storage credentials.
+            var tokenCredential = new TokenCredential(accessToken);
+            StorageCredentials storageCredentials = new StorageCredentials(tokenCredential);
+
+            string storageAccountUrl = ConfigurationManager.AppSettings["StorageAccountUrl"];
+            var client = new CloudBlobClient(new Uri(storageAccountUrl), storageCredentials);
+
+            return client;
+        }
+
+        // GET: Storage
+        public async Task<ActionResult> Index()
+        {            
             var items = new System.Collections.Generic.List<StorageModel>();
 
             try
             {
-                var accessToken = await tokenHelper.GetTokenForApplication(AuthHelper.AzureStorageResourceId);
-                // Use the access token to create the storage credentials.
-                var tokenCredential = new TokenCredential(accessToken);
-                StorageCredentials storageCredentials = new StorageCredentials(tokenCredential);
-
-                string storageAccountUrl = ConfigurationManager.AppSettings["StorageAccountUrl"];
-                var client = new CloudBlobClient(new Uri(storageAccountUrl), storageCredentials);
-
+                var client = await GetStorageClient();
+                
                 var container = client.GetContainerReference("demo");
+
                 //Don't do this in production due to overhead of additional call to check
                 //Only good for demos to make sure the container exists
                 await container.CreateIfNotExistsAsync();
-
-                var fileName = Guid.NewGuid().ToString() + ".txt";
-                var blob = container.GetBlockBlobReference(fileName);
-
-                using (var stream = new MemoryStream(Encoding.Default.GetBytes("Hello world"), false))
-                {
-                    blob.UploadFromStream(stream, null);
-                }
 
                 BlobContinuationToken blobContinuationToken = null;
 
@@ -55,8 +55,8 @@ namespace aad_dotnet_multiple_apis.Controllers
                     // Get the value of the continuation token returned by the listing call.
                     blobContinuationToken = results.ContinuationToken;
 
-                    foreach (IListBlobItem item in results.Results)
-                    {
+                    foreach (CloudBlockBlob item in results.Results)
+                    {                        
                         items.Add(new StorageModel(item));
                     }
 
@@ -74,7 +74,112 @@ namespace aad_dotnet_multiple_apis.Controllers
                 return View("Relogin");
             }
 
-            return View("IndexView", items);
+            return View("Index", items);
+        }
+
+        //POST: Storage/Create
+        [HttpPost]
+        public async Task<ActionResult> Create()
+        {
+
+
+            try
+            {
+                var client = await GetStorageClient();
+
+                var container = client.GetContainerReference("demo");
+
+                //Don't do this in production due to overhead of additional call to check
+                //Only good for demos to make sure the container exists
+                await container.CreateIfNotExistsAsync();
+
+                string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
+
+                var fileName = string.Format("{0}-{1}.txt", userObjectID, System.DateTime.Now.Ticks);
+                var blob = container.GetBlockBlobReference(fileName);
+
+                StringBuilder sb = new StringBuilder();
+                //Store all claim values about the current user into the file
+                foreach (var claim in ClaimsPrincipal.Current.Claims)
+                {
+                    sb.AppendFormat("{0}:{1}", claim.Type, claim.Value);
+                    sb.AppendLine();
+                }
+
+                using (var stream = new MemoryStream(Encoding.Default.GetBytes(sb.ToString()), false))
+                {
+                    blob.UploadFromStream(stream, null);
+                }
+
+            }
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (AdalSilentTokenAcquisitionException ee)
+            {
+                AuthHelper.RefreshSession("/Storage");
+            }
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (Exception oops)
+            {
+                ViewBag.Message = oops.Message;
+                return View("Relogin");
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+
+        // GET: Storage/Details/5
+        public async Task<ActionResult> Details(string fileName)
+        {
+            var blobModel = new StorageModel();
+            try
+            {
+                var tokenHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
+                var client = await GetStorageClient();
+
+                var container = client.GetContainerReference("demo");                
+                var blob = container.GetBlockBlobReference(fileName);
+                await blob.FetchAttributesAsync();
+
+                blobModel = new StorageModel(blob);
+                blobModel.Contents = await blob.DownloadTextAsync();
+            }
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (AdalSilentTokenAcquisitionException ee)
+            {
+                AuthHelper.RefreshSession("/Storage");
+            }
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (Exception oops)
+            {
+                ViewBag.Message = oops.Message;
+                return View("Relogin");
+            }
+
+            return View(blobModel);
+
+        }
+
+
+        [HttpPost]
+        public async Task<ActionResult> Delete(string fileName)
+        {
+            try
+            {
+                // TODO: Add delete logic here
+                var tokenHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
+                var client = await GetStorageClient();
+
+                var container = client.GetContainerReference("demo");
+                var blob = container.GetBlockBlobReference(fileName);
+                await blob.DeleteAsync();
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View();
+            }
         }
 
     }

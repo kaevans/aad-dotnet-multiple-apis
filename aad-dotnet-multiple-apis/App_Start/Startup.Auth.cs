@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Globalization;
-using System.IdentityModel.Claims;
-using System.Linq;
-using System.Threading.Tasks;
-using System.Web;
+﻿using aad_dotnet_multiple_apis.Models;
+using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Owin.Security;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Owin;
-using aad_dotnet_multiple_apis.Models;
+using System;
+using System.IdentityModel.Claims;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace aad_dotnet_multiple_apis
 {
@@ -33,6 +29,8 @@ namespace aad_dotnet_multiple_apis
                     ClientId = AuthHelper.ClientId,
                     Authority = AuthHelper.Authority,
                     PostLogoutRedirectUri = AuthHelper.PostLogoutRedirectUri,
+                    //Add the RedirectUri here when you have multiple reply URLs
+                    RedirectUri = AuthHelper.ReplyUrl,
 
                     Notifications = new OpenIdConnectAuthenticationNotifications()
                     {
@@ -71,21 +69,6 @@ namespace aad_dotnet_multiple_apis
                         }
                     }
                 });
-        }
-
-        private static string EnsureTrailingSlash(string value)
-        {
-            if (value == null)
-            {
-                value = string.Empty;
-            }
-
-            if (!value.EndsWith("/", StringComparison.Ordinal))
-            {
-                return value + "/";
-            }
-
-            return value;
         }
     }
 }

@@ -19,9 +19,8 @@ namespace aad_dotnet_multiple_apis.Controllers
             var ret = new List<UserModel>();
 
             try
-            {
+            {                
                 var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
-
 
                 var graphServiceClient = new GraphServiceClient(new DelegateAuthenticationProvider(async (requestMessage) =>
                 {

@@ -1,9 +1,10 @@
-﻿@{
-    ViewBag.Title = "Database";
-}
-<h2>@ViewBag.Title.</h2>
+﻿<div class="page-header">
+    <h2>Azure SQL Database</h2>
+    <h4>Oops!</h4>
+</div>
 
 <p>
     The token for accessing the Azure SQL Database API has expired.
+    If debugging locally, ensure you have added your client IP to the Azure SQL logical server firewall rules.
     Click @Html.ActionLink("here", "RefreshSession", "Database", null, null) to sign-in and get a new access token.
 </p>

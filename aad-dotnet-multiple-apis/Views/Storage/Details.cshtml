@@ -1,0 +1,81 @@
+﻿@model aad_dotnet_multiple_apis.Models.StorageModel
+
+@{
+    ViewBag.Title = "Details";
+}
+
+<div class="page-header">
+    <h2>Azure Storage</h2>
+    <h4>Show details of blob</h4>
+</div>
+
+
+<div>        
+    @using (Html.BeginForm("Delete", "Storage", new { fileName = Model.Name }, FormMethod.Post))
+    {
+        <button type="submit" class="btn btn-default btn-sm">
+            <span class="glyphicon glyphicon-remove"></span> Delete
+        </button>
+    }
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Created)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Created)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Length)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Length)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.LastModified)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.LastModified)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.IsServerEncrypted)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.IsServerEncrypted)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.ETag)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.ETag)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Contents)
+        </dt>
+
+        <dd>
+            <pre>@Html.DisplayFor(model => model.Contents)</pre>
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Back to List", "Index")
+</p>

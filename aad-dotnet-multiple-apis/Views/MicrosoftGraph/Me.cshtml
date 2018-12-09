@@ -3,66 +3,64 @@
 @{
     ViewBag.Title = "Me";
 }
-
-<h2>Me</h2>
-
-<div>
-    <h4>UserModel</h4>
-    <hr />
-    <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.DisplayName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.DisplayName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.UserPrincipalName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.UserPrincipalName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.OnPremisesDomainName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.OnPremisesDomainName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.OnPremisesImmutableId)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.OnPremisesImmutableId)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.OnPremisesSamAccountName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.OnPremisesSamAccountName)
-        </dd>
-
-        <dt>
-            @Html.DisplayNameFor(model => model.OnPremisesUserPrincipalName)
-        </dt>
-
-        <dd>
-            @Html.DisplayFor(model => model.OnPremisesUserPrincipalName)
-        </dd>
-
-    </dl>
+<div class="page-header">
+    <h2>Microsoft Graph</h2>
+    <h4>Get current user's profile</h4>
 </div>
-<p>
-    @Html.ActionLink("Back to List", "Index")
-</p>
-<p>
-    @Html.ActionLink("Reconsent", "Reconsent")
-</p>
+    <div>
+        
+        
+        <dl class="dl-horizontal">
+            <dt>
+                @Html.DisplayNameFor(model => model.DisplayName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.DisplayName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.UserPrincipalName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.UserPrincipalName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.OnPremisesDomainName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.OnPremisesDomainName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.OnPremisesImmutableId)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.OnPremisesImmutableId)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.OnPremisesSamAccountName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.OnPremisesSamAccountName)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.OnPremisesUserPrincipalName)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.OnPremisesUserPrincipalName)
+            </dd>
+        </dl>
+    </div>
+
+    <p>
+
+        <span>
+            <a href="@Url.Action("Reconsent")" class="btn btn-default">
+                <span class="glyphicon glyphicon-th-list"></span>
+                Reconsent to permissions
+            </a>
+            <a href="@Url.Action("Index")" class="btn btn-default">
+                <span class="glyphicon glyphicon-list-alt"></span>
+                Back to List
+            </a>
+        </span>
+
+    </p>

@@ -1,28 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Security.Claims;
-using System.Web;
-using System.Web.Mvc;
-using System.Threading.Tasks;
+﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.Azure.ActiveDirectory.GraphClient;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.Cookies;
 using Microsoft.Owin.Security.OpenIdConnect;
-using aad_dotnet_multiple_apis.Models;
+using System;
+using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
+using System.Web;
+using System.Web.Mvc;
 
 namespace aad_dotnet_multiple_apis.Controllers
 {
     [Authorize]
     public class UserProfileController : Controller
-    {
-        private ApplicationDbContext db = new ApplicationDbContext();
-        private string clientId = ConfigurationManager.AppSettings["ida:ClientId"];
-        private string appKey = ConfigurationManager.AppSettings["ida:ClientSecret"];
-        private string aadInstance = EnsureTrailingSlash(ConfigurationManager.AppSettings["ida:AADInstance"]);
-        private string graphResourceID = "https://graph.windows.net";
+    {        
+        private readonly string clientId = AuthHelper.ClientId;
+        private readonly string appKey = AuthHelper.GetKey();
+        private readonly string aadInstance = AuthHelper.AadInstance;
+        private readonly string graphResourceID = AuthHelper.AzureADGraphResourceId;
 
         // GET: UserProfile
         public async Task<ActionResult> Index()
@@ -30,12 +26,13 @@ namespace aad_dotnet_multiple_apis.Controllers
             string tenantID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/tenantid").Value;
             string userObjectID = ClaimsPrincipal.Current.FindFirst("http://schemas.microsoft.com/identity/claims/objectidentifier").Value;
             try
-            {
-                Uri servicePointUri = new Uri(graphResourceID);
+            {                
+                Uri servicePointUri = new Uri("https://graph.windows.net");
                 Uri serviceRoot = new Uri(servicePointUri, tenantID);
+
                 ActiveDirectoryClient activeDirectoryClient = new ActiveDirectoryClient(serviceRoot,
                       async () => await GetTokenForApplication());
-
+                
                 // use the token for querying the graph to get the user details
 
                 var result = await activeDirectoryClient.Users

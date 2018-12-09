@@ -1,10 +1,59 @@
-﻿@using Microsoft.WindowsAzure.Storage.Blob;
-@using System.Collections.Generic;
-@model System.Collections.Generic.IEnumerable<IListBlobItem> blobItems;
-
+﻿@model IEnumerable<aad_dotnet_multiple_apis.Models.StorageModel>
 @{
     ViewBag.Title = "Index";
 }
+<div class="page-header">
+    <h2>Azure Storage</h2>
+    <h4>List all blobs in a container</h4>
+</div>
+@using (Html.BeginForm("Create", "Storage", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
 
-<h2>Index</h2>
+    <button type="submit" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-plus"></span> Create new blob
+    </button>
+}
 
+<table class="table">
+    <tr>
+        <th>Name</th>
+        <th>StorageUri</th>
+        <th>Created</th>
+        <th>Modified</th>
+        <th>Length</th>
+        <th></th>
+    </tr>
+    @foreach (aad_dotnet_multiple_apis.Models.StorageModel item in Model)
+    {
+        <tr>
+            <td>
+                @Html.ActionLink(item.Name, "Details", new { fileName = item.Name })
+            </td>
+            <td>
+                @item.StorageUri;
+            </td>
+
+            <td>@item.Created</td>
+            <td>@item.LastModified</td>
+            <td>@item.Length</td>
+            <td>
+                @using (Html.BeginForm("Delete", "Storage", new { fileName = item.Name }, FormMethod.Post))
+                {
+                    <button type="submit" class="btn btn-default btn-sm">
+                        <span class="glyphicon glyphicon-remove"></span> Delete
+                    </button>
+                }
+            </td>
+        </tr>
+    }
+</table>
+
+@using (Html.BeginForm("Create", "Storage", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+
+    <button type="submit" class="btn btn-default btn-sm">
+        <span class="glyphicon glyphicon-plus"></span> Create new blob
+    </button>
+}

@@ -3,29 +3,41 @@
 }
 
 <div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
+    <h1>ADAL Samples</h1>    
+    <p class="lead">ADAL uses the v1 endpoint. This is the currently recommended library.</p>
+    <p><a href="https://docs.microsoft.com/en-us/azure/active-directory/develop/sample-v1-code" class="btn btn-primary btn-lg">See more samples &raquo;</a></p>
 </div>
 
 <div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
+    <div class="col-md-6">
+        <h2>Calling APIs with a user token</h2>
         <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
+            Call out of box APIs.
         </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
+        <p>
+            Call out of box APIs with granular permissions. Different services 
+            handle authorization differently. AAD Graph and Microsoft Graph use
+            API permissions. Azure Management and Azure Storage use RBAC, and
+            Azure SQL Database uses database permissions.
+            <ul>
+                <li>@Html.ActionLink("AAD Graph", "Index", "UserProfile")</li>
+                <li>@Html.ActionLink("Microsoft Graph", "Index", "MicrosoftGraph")</li>
+                <li>@Html.ActionLink("Storage", "Index", "Storage")</li>
+                <li>@Html.ActionLink("Database", "Index", "Database")</li>
+                <li>@Html.ActionLink("Azure Management", "Index", "ARM")</li>
+            </ul>
+        </p>
     </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+    <div class="col-md-6">
+        <h2>Register and call custom APIs.</h2>        
+        <p>
+            Custom APIs can be registered. The application can call the custom API
+            as a daemon application (headless, no interactive user) or on behalf of the user.
+            You can even register an API that calls another downstream API on behalf of the user.
+            <ul>
+                <li>@Html.ActionLink("Custom API", "Index", "Values")</li>
+                <li>@Html.ActionLink("On Behalf Of", "Index", "OnBehalfOf")</li>
+            </ul>
+        </p>
     </div>
 </div>

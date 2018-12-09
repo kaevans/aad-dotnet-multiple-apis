@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aad-dotnet-multiple-apis", 
 EndProject
 Project("{151D2E53-A2C4-4D7D-83FE-D05416EBD58E}") = "paas-deploy", "paas-deploy\paas-deploy.deployproj", "{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aad-dotnet-webapi-onbehalfof", "aad-dotnet-webapi-onbehalfof\aad-dotnet-webapi-onbehalfof.csproj", "{C83BCCD8-2700-4721-8A45-14BB6383CB7F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ABFAFC6B-839C-40A2-A143-CF4BF82AB0FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C83BCCD8-2700-4721-8A45-14BB6383CB7F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C83BCCD8-2700-4721-8A45-14BB6383CB7F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C83BCCD8-2700-4721-8A45-14BB6383CB7F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C83BCCD8-2700-4721-8A45-14BB6383CB7F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

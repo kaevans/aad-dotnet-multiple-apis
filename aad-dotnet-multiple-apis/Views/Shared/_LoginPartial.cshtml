@@ -2,12 +2,19 @@
 {
     <text>
          <ul class="nav navbar-nav navbar-right">
-            <li>
-                @Html.ActionLink("Hello " + User.Identity.Name + "!", "Index", "UserProfile", routeValues: null, htmlAttributes: null)
-            </li>
-            <li>
-                @Html.ActionLink("Sign out", "SignOut", "Account")
-            </li>
+             <li>
+                 <a href="@Url.Action("Index","UserProfile")">
+                     <span class="glyphicon glyphicon-user"></span>
+                     @User.Identity.Name
+                 </a>
+                 
+             </li>
+             <li>
+                 <a href="@Url.Action("SignOut","Account")">
+                     <span class="glyphicon glyphicon-log-out"></span>
+                     Sign out
+                 </a>                 
+             </li>
         </ul>
     </text>
 }

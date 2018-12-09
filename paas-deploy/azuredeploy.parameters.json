@@ -3,17 +3,9 @@
   "contentVersion": "1.0.0.0",
   "parameters":
   {
-    "hostingPlanName":
-    {
-      "value": "kirkehostingplan"
-    },
     "sqlAdminLogin":
     {
       "value": "myadmin"
-    },
-    "databaseName":
-    {
-      "value": "advworks"
     },
     "sqlAdminPassword":
     {
@@ -41,10 +33,6 @@
     "tenant":
     {
       "value": "blueskyabove.onmicrosoft.com"
-    },
-    "roleAssignmentGuid":
-    {
-      "value": "b1b9fffc-112e-4d14-b0d5-611b16222c05"
     }
   }
 }

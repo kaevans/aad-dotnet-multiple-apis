@@ -18,22 +18,29 @@ namespace aad_dotnet_multiple_apis.Models
         public static string ReplyUrl = ConfigurationManager.AppSettings["ida:ReplyUrl"];
         public static string PostLogoutRedirectUri = ConfigurationManager.AppSettings["ida:PostLogoutRedirectUri"];
 
+        public static string CustomServiceBaseAddress = ConfigurationManager.AppSettings["CustomServiceBaseAddress"];
+
         public static readonly string Authority = AadInstance + TenantId;
 
         // Resource ID of the Azure AD Graph API.  
-        public static string AzureADGraphResourceId = "https://graph.windows.net";
+        public static readonly string AzureADGraphResourceId = "https://graph.windows.net";
 
         // Resource ID of the Microsoft Graph API
-        public static string MicrosoftGraphResourceId = "https://graph.microsoft.com";
+        public static readonly string MicrosoftGraphResourceId = "https://graph.microsoft.com";
 
         // Resource ID of the Azure Storage API.  
-        public static string AzureStorageResourceId = "https://storage.azure.com/";
+        public static readonly string AzureStorageResourceId = "https://storage.azure.com/";
 
         // Resource ID of the Azure SQL Database API.  
-        public static string AzureSQLDatabaseResourceId = "https://database.windows.net/";
+        public static readonly string AzureSQLDatabaseResourceId = "https://database.windows.net/";
 
         // Resource ID of the Azure Management API.  
-        public static string AzureManagementResourceId = "https://management.azure.com/";
+        public static readonly string AzureManagementResourceId = "https://management.azure.com/";
+
+        // Resource ID of the custom web service
+        public static readonly string CustomServiceResourceId = "https://BlueSkyAbove.onmicrosoft.com/aad-dotnet-webapi-onbehalfof";
+
+        private static readonly string SERVICE_UNAVAILABLE = "temporarily_unavailable";
 
         private TokenCache _tokenCache;
         public AuthHelper(TokenCache cacheImpl)
@@ -47,9 +54,12 @@ namespace aad_dotnet_multiple_apis.Models
         }
 
 
-
-
-
+        /// <summary>
+        /// Gets an access token for the resource using the provided clientSecret.
+        /// </summary>
+        /// <param name="resourceId">The resource to request an access token for.</param>
+        /// <param name="key">The clientSecret of the application requesting the token.</param>
+        /// <returns></returns>
         public async Task<string> GetTokenForApplication(string resourceId, string key)
         {
             // get a token for the Graph without triggering any user interaction (from the cache, via multi-resource refresh token, etc)
@@ -58,11 +68,41 @@ namespace aad_dotnet_multiple_apis.Models
             ClientCredential clientcred = new ClientCredential(ClientId, key);
             // initialize AuthenticationContext with the token cache of the currently signed in user
             AuthenticationContext authenticationContext = new AuthenticationContext(Authority, _tokenCache);
-            AuthenticationResult authenticationResult = await authenticationContext.AcquireTokenSilentAsync(resourceId, clientcred, new UserIdentifier(userObjectId, UserIdentifierType.UniqueId));
-            return authenticationResult.AccessToken;
+            AuthenticationResult authenticationResult = null;
+                   
+            bool retry = true;
+            int retryCount = 0;
 
+            do
+            {
+                retry = false;
+                try
+                {
+                    authenticationResult = await authenticationContext.AcquireTokenSilentAsync(resourceId, clientcred, new UserIdentifier(userObjectId, UserIdentifierType.UniqueId));                    
+                }
+                catch (AdalException ex)
+                {
+                    if (ex.ErrorCode == SERVICE_UNAVAILABLE)
+                    {
+                        // Transient error, OK to retry. 
+                        // TODO: Change this to use Polly for transient fault handling.
+                        // https://github.com/App-vNext/Polly
+
+                        retry = true;
+                        retryCount++;
+                        await Task.Delay(1000);
+                    }
+                }
+            } while ((retry == true) && (retryCount < 2));
+
+            return authenticationResult.AccessToken;
         }
 
+        /// <summary>
+        /// Gets an access token for the resource.
+        /// </summary>
+        /// <param name="resourceId">The resource to request an access token for.</param>
+        /// <returns></returns>
         public async Task<string> GetTokenForApplication(string resourceId)
         {
             string key = GetKey();
@@ -71,7 +111,14 @@ namespace aad_dotnet_multiple_apis.Models
         }
 
 
-
+        /// <summary>
+        /// Challenge the user to authenticate again and prompt them to 
+        /// reconsent to the application's permission requests.
+        /// </summary>
+        /// <param name="redirectUri">The URI that AAD will redirect to. 
+        /// Must exactly match the replyUrl configured in the AAD application.</param>
+        /// <param name="reconsent">Boolean indicating if the user should 
+        /// reconsent to the application's requested permissions.</param>
         public static void RefreshSession(string redirectUri, bool reconsent)
         {
             if (reconsent)
@@ -81,6 +128,10 @@ namespace aad_dotnet_multiple_apis.Models
             RefreshSession(redirectUri);
         }
 
+        /// <summary>
+        /// Challege the user to authenticate again.
+        /// </summary>
+        /// <param name="redirectUri"></param>
         public static void RefreshSession(string redirectUri)
         {
             HttpContext.Current.GetOwinContext().Authentication.Challenge(

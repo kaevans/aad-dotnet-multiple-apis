@@ -3,45 +3,7 @@
   "contentVersion": "1.0.0.0",
   "parameters":
   {
-    "hostingPlanName":
-    {
-      "type": "string",
-      "minLength": 1
-    },
-    "skuName":
-    {
-      "type": "string",
-      "defaultValue": "F1",
-      "allowedValues":
-      [
-        "F1",
-        "D1",
-        "B1",
-        "B2",
-        "B3",
-        "S1",
-        "S2",
-        "S3",
-        "P1",
-        "P2",
-        "P3",
-        "P4"
-      ],
-      "metadata":
-      {
-        "description": "Describes plan's pricing tier and instance size. Check details at https://azure.microsoft.com/en-us/pricing/details/app-service/"
-      }
-    },
-    "skuCapacity":
-    {
-      "type": "int",
-      "defaultValue": 1,
-      "minValue": 1,
-      "metadata":
-      {
-        "description": "Describes plan's instance count"
-      }
-    },
+
     "sqlAdminLogin":
     {
       "type": "string"
@@ -58,50 +20,6 @@
     {
       "type": "string"
     },
-    "databaseName":
-    {
-      "type": "string"
-    },
-    "collation":
-    {
-      "type": "string",
-      "defaultValue": "SQL_Latin1_General_CP1_CI_AS"
-    },
-    "edition":
-    {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues":
-      [
-        "Basic",
-        "Standard",
-        "Premium"
-      ]
-    },
-    "maxSizeBytes":
-    {
-      "type": "string",
-      "defaultValue": "1073741824"
-    },
-    "requestedServiceObjectiveName":
-    {
-      "type": "string",
-      "defaultValue": "Basic",
-      "allowedValues":
-      [
-        "Basic",
-        "S0",
-        "S1",
-        "S2",
-        "P1",
-        "P2",
-        "P3"
-      ],
-      "metadata":
-      {
-        "description": "Describes the performance level for Edition"
-      }
-    },
     "clientId":
     {
       "type": "string"
@@ -116,31 +34,25 @@
     {
       "type": "string"
 
-    },
-    "storageType":
-    {
-      "type": "string",
-      "defaultValue": "Standard_LRS",
-      "allowedValues":
-      [
-        "Standard_LRS",
-        "Standard_ZRS",
-        "Standard_GRS",
-        "Standard_RAGRS",
-        "Premium_LRS"
-      ]
-    },
-    "roleAssignmentGuid":
-    {
-      "type": "string"
-    
     }
   },
   "variables":
   {
+    "hostingPlanName": "[concat('plan', uniqueString(resourceGroup().id))]",
+    "skuName": "F1",
+    "skuCapacity": "1",
     "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
+    "apiSiteName": "[concat('apiSite', uniqueString(resourceGroup().id))]",
+
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
+    "collation": "SQL_Latin1_General_CP1_CI_AS",
+    "edition": "Basic",
+    "maxSizeBytes": "1073741824",
+    "requestedServiceObjectiveName": "Basic",
+    "databaseName": "advWorks",
+
     "storageName": "[concat('storage', uniqueString(resourceGroup().id))]",
+    "storageType": "Standard_LRS",
     "vaultName": "[concat('keyvault', uniqueString(resourceGroup().id))]",
     "tenantId": "[subscription().tenantId]"
   },
@@ -153,7 +65,7 @@
       "apiVersion": "2016-01-01",
       "sku":
       {
-        "name": "[parameters('storageType')]"
+        "name": "[variables('storageType')]"
       },
       "dependsOn":
       [
@@ -163,17 +75,6 @@
         "displayName": "Storage"
       },
       "kind": "Storage"
-    },
-    {
-      "name": "[parameters('roleAssignmentGuid')]",
-      "type": "Microsoft.Authorization/roleAssignments",
-      "apiVersion": "2018-01-01-preview",
-      "properties":
-      {
-        "roleDefinitionId": "[concat('/subscriptions/', subscription().subscriptionId, '/providers/Microsoft.Authorization/roleDefinitions/', 'ba92f5b4-2d11-453d-a403-e96b0029c9fe')]",
-        "principalId": "[parameters('aadUserObjectID')]",
-        "scope": "[resourceGroup().id]"
-      }
     },
     {
       "name": "[variables('vaultName')]",
@@ -217,7 +118,7 @@
       "resources":
       [
         {
-          "name": "[parameters('databaseName')]",
+          "name": "[variables('databaseName')]",
           "type": "databases",
           "location": "[resourceGroup().location]",
           "tags":
@@ -231,10 +132,10 @@
           ],
           "properties":
           {
-            "edition": "[parameters('edition')]",
-            "collation": "[parameters('collation')]",
-            "maxSizeBytes": "[parameters('maxSizeBytes')]",
-            "requestedServiceObjectiveName": "[parameters('requestedServiceObjectiveName')]"
+            "edition": "[variables('edition')]",
+            "collation": "[variables('collation')]",
+            "maxSizeBytes": "[variables('maxSizeBytes')]",
+            "requestedServiceObjectiveName": "[variables('requestedServiceObjectiveName')]"
           }
         },
         {
@@ -273,7 +174,7 @@
     },
     {
       "apiVersion": "2015-08-01",
-      "name": "[parameters('hostingPlanName')]",
+      "name": "[variables('hostingPlanName')]",
       "type": "Microsoft.Web/serverfarms",
       "location": "[resourceGroup().location]",
       "tags":
@@ -282,12 +183,12 @@
       },
       "sku":
       {
-        "name": "[parameters('skuName')]",
-        "capacity": "[parameters('skuCapacity')]"
+        "name": "[variables('skuName')]",
+        "capacity": "[variables('skuCapacity')]"
       },
       "properties":
       {
-        "name": "[parameters('hostingPlanName')]"
+        "name": "[variables('hostingPlanName')]"
       }
     },
     {
@@ -301,19 +202,19 @@
       },
       "dependsOn":
       [
-        "[resourceId('Microsoft.Web/serverFarms/', parameters('hostingPlanName'))]",
+        "[resourceId('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts',variables('storageName'))]",
         "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]"
       ],
       "tags":
       {
-        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', parameters('hostingPlanName'))]": "empty",
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "empty",
         "displayName": "Website"
       },
       "properties":
       {
         "name": "[variables('webSiteName')]",
-        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('hostingPlanName'))]"
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
       },
       "resources":
       [
@@ -329,12 +230,12 @@
           {
             "DefaultConnection":
             {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'), ';User Id=', parameters('sqlAdminLogin'), '@', variables('sqlserverName'), ';Password=', parameters('sqlAdminPassword'), ';')]",
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User Id=', parameters('sqlAdminLogin'), '@', variables('sqlserverName'), ';Password=', parameters('sqlAdminPassword'), ';')]",
               "type": "SQLServer"
             },
             "DemoDB":
             {
-              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', parameters('databaseName'))]",
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'))]",
               "type": "SQLServer"
             }
           }
@@ -360,7 +261,8 @@
             "ida:ReplyUrl": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
             "ida:PostLogoutRedirectUri": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
             "StorageAccountUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageName')), '2016-01-01').primaryEndpoints.blob]",
-            "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]"
+            "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
+            "PROJECT": "aad-dotnet-multipleapis\\aad-dotnet-multiple-apis.csproj"
           }
         },
         {
@@ -370,8 +272,96 @@
           "dependsOn":
           [
 
-            "[resourceId('Microsoft.Web/Sites', variables('webSiteName'))]"
+            "[resourceId('Microsoft.Web/Sites', variables('webSiteName'))]",
+            "[resourceId('Microsoft.Web/Sites/config', variables('webSiteName'),'appsettings')]",
+            "[resourceId('Microsoft.Web/Sites/config', variables('webSiteName'),'connectionstrings')]"
 
+          ],
+          "properties":
+          {
+            "RepoUrl": "https://github.com/kaevans/aad-dotnet-multiple-apis.git",
+            "branch": "master",
+            "IsManualIntegration": true
+          }
+        }
+      ]
+    },
+    {
+      "apiVersion": "2015-08-01",
+      "name": "[variables('apiSiteName')]",
+      "type": "Microsoft.Web/sites",
+      "location": "[resourceGroup().location]",
+      "identity":
+      {
+        "type": "SystemAssigned"
+      },
+      "dependsOn":
+      [
+        "[resourceId('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Storage/storageAccounts',variables('storageName'))]",
+        "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]"
+      ],
+      "tags":
+      {
+        "[concat('hidden-related:', resourceGroup().id, '/providers/Microsoft.Web/serverfarms/', variables('hostingPlanName'))]": "empty",
+        "displayName": "ApiSite"
+      },
+      "properties":
+      {
+        "name": "[variables('apiSiteName')]",
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('hostingPlanName'))]"
+      },
+      "resources":
+      [
+        {
+          "apiVersion": "2015-08-01",
+          "type": "config",
+          "name": "connectionstrings",
+          "dependsOn":
+          [
+            "[resourceId('Microsoft.Web/Sites/', variables('apiSiteName'))]"
+          ],
+          "properties":
+          {
+            "DefaultConnection":
+            {
+              "value": "[concat('Data Source=tcp:', reference(resourceId('Microsoft.Sql/servers/', variables('sqlserverName'))).fullyQualifiedDomainName, ',1433;Initial Catalog=', variables('databaseName'), ';User Id=', parameters('sqlAdminLogin'), '@', variables('sqlserverName'), ';Password=', parameters('sqlAdminPassword'), ';')]",
+              "type": "SQLServer"
+            }
+          }
+        },
+        {
+          "name": "appsettings",
+          "type": "config",
+          "apiVersion": "2015-08-01",
+          "dependsOn":
+          [
+            "[resourceId('Microsoft.Web/sites', variables('apiSiteName'))]"
+          ],
+          "tags":
+          {
+            "displayName": "appSettings"
+          },
+          "properties":
+          {
+            "ida:Tenant": "[parameters('tenant')]",
+            "ida:Audience": "[concat('https://',parameters('tenant'), '/aad-dotnet-webapi-onbehalfof')]",
+            "ida:ClientId": "[parameters('clientId')]",
+            "ida:AADInstance": "[parameters('aadInstance')]",
+            "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
+            "PROJECT": "aad-dotnet-multipleapis\\aad-dotnet-webapi-onbehalfof.csproj"
+          }
+        },
+        {
+          "apiVersion": "2015-08-01",
+          "name": "web",
+          "type": "sourcecontrols",
+          "dependsOn":
+          [
+
+            "[resourceId('Microsoft.Web/Sites', variables('apiSiteName'))]",
+            "[resourceId('Microsoft.Web/Sites/config', variables('apiSiteName'),'appsettings')]",
+            "[resourceId('Microsoft.Web/Sites/config', variables('apiSiteName'),'connectionstrings')]"
           ],
           "properties":
           {
@@ -390,7 +380,8 @@
       "dependsOn":
       [
         "[concat('Microsoft.KeyVault/vaults/', variables('vaultName'))]",
-        "[concat('Microsoft.Web/sites/',variables('webSiteName'))]"
+        "[concat('Microsoft.Web/sites/',variables('webSiteName'))]",
+        "[concat('Microsoft.Web/sites/',variables('apiSiteName'))]"
       ],
       "properties":
       {
@@ -399,6 +390,17 @@
           {
             "tenantId": "[variables('tenantId')]",
             "objectId": "[reference(variables('webSiteName'),'2018-02-01','Full').identity.principalId]",
+            "permissions":
+            {
+              "secrets":
+              [
+                "get"
+              ]
+            }
+          },
+          {
+            "tenantId": "[variables('tenantId')]",
+            "objectId": "[reference(variables('apiSiteName'),'2018-02-01','Full').identity.principalId]",
             "permissions":
             {
               "secrets":
@@ -464,6 +466,11 @@
     {
       "type": "string",
       "value": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]"
+    },
+    "apiAppUrl":
+    {
+      "type": "string",
+      "value": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('apiSiteName')),'2015-08-01').hostNames[0],'/')]"
     },
     "blobUrl":
     {

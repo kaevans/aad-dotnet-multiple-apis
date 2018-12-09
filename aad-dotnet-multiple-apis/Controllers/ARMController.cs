@@ -4,14 +4,29 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace aad_dotnet_multiple_apis.Controllers
 {
-    [Authorize]
+    /// <summary>
+    /// Demonstrates how to get an access token to the
+    /// Azure Management API (ARM) and use the HttpClient
+    /// class to make a restful call to retrieve the 
+    /// current user's Azure subscription information.
+    /// </summary>
+    [Authorize]    
     public class ARMController : Controller
     {
+        //Set as static readonly field to avoid TCP resource exhaustion.
+        //See https://docs.microsoft.com/en-us/azure/architecture/antipatterns/improper-instantiation/
+        private static readonly HttpClient client;
+
+        static ARMController()
+        {
+            client = new HttpClient();
+        }
         // GET: ARM
         public async Task<ActionResult> Index()
         {
@@ -22,11 +37,11 @@ namespace aad_dotnet_multiple_apis.Controllers
 
             try
             {
-                var client = new HttpClient();
-                client.DefaultRequestHeaders.Add("Authorization", "Bearer " + accessToken);
-                client.BaseAddress = new Uri(AuthHelper.AzureManagementResourceId);
+                //Set the Authorization header to use the access token
+                client.DefaultRequestHeaders.Authorization =
+                    new AuthenticationHeaderValue("Bearer", accessToken);                
 
-                var response = await client.GetAsync("/subscriptions?api-version=2016-06-01");
+                var response = await client.GetAsync("https://management.azure.com/subscriptions?api-version=2016-06-01");
                 var json = await response.Content.ReadAsStringAsync();
                 subscriptions = JsonConvert.DeserializeObject<SubscriptionModel>(json).Subscriptions;
             }
@@ -34,8 +49,7 @@ namespace aad_dotnet_multiple_apis.Controllers
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 AuthHelper.RefreshSession("/ARM");
-            }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            }            
             catch (Exception oops)
             {
                 ViewBag.Message = oops.Message;
