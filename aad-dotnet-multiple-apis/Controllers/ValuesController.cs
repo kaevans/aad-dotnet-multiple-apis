@@ -30,6 +30,8 @@ namespace aad_dotnet_multiple_apis.Controllers
             var clientCredential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
             try
             {
+                System.Diagnostics.Trace.TraceInformation("Requesting token for resource ID: " + AuthHelper.CustomServiceResourceId);
+
                 var result = await authContext.AcquireTokenAsync(AuthHelper.CustomServiceResourceId, clientCredential);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
                 
@@ -50,7 +52,7 @@ namespace aad_dotnet_multiple_apis.Controllers
             }
             catch(Exception oops)
             {
-                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
                 return View("Error");
             }
 
