@@ -32,6 +32,11 @@ namespace aad_dotnet_multiple_apis.Controllers
             {
                 var result = await authContext.AcquireTokenAsync(AuthHelper.CustomServiceResourceId, clientCredential);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                
+                //Don't do this in production. Used only for debugging, production apps
+                //should never write secrets to trace or the event log
+                System.Diagnostics.Trace.TraceInformation(result.AccessToken);
+
                 var response = await client.GetAsync(AuthHelper.CustomServiceBaseAddress + "/api/Values");
                 var values = await response.Content.ReadAsStringAsync();
                 ViewBag.Values = values;
