@@ -65,11 +65,13 @@ namespace aad_dotnet_multiple_apis.Controllers
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Storage");
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
                 ViewBag.Message = oops.Message;
                 return View("Relogin");
             }
@@ -115,11 +117,13 @@ namespace aad_dotnet_multiple_apis.Controllers
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Storage");
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
                 ViewBag.Message = oops.Message;
                 return View("Relogin");
             }
@@ -148,11 +152,13 @@ namespace aad_dotnet_multiple_apis.Controllers
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Storage");
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
                 ViewBag.Message = oops.Message;
                 return View("Relogin");
             }
@@ -176,8 +182,9 @@ namespace aad_dotnet_multiple_apis.Controllers
                 await blob.DeleteAsync();
                 return RedirectToAction("Index");
             }
-            catch
+            catch(AdalSilentTokenAcquisitionException ee)
             {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 return View();
             }
         }

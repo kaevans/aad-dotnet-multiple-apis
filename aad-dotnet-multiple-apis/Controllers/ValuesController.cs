@@ -28,14 +28,21 @@ namespace aad_dotnet_multiple_apis.Controllers
         {
             var authContext = new AuthenticationContext(AuthHelper.Authority);
             var clientCredential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
+            try
+            {
+                var result = await authContext.AcquireTokenAsync(AuthHelper.CustomServiceResourceId, clientCredential);
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
+                var response = await client.GetAsync(AuthHelper.CustomServiceBaseAddress + "/api/Values");
+                var values = await response.Content.ReadAsStringAsync();
+                ViewBag.Values = values;
 
-            var result = await authContext.AcquireTokenAsync(AuthHelper.CustomServiceResourceId, clientCredential);
+            }
+            catch (AdalSilentTokenAcquisitionException ee)
+            {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
+                AuthHelper.RefreshSession("/Values");
+            }
 
-            
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.AccessToken);
-            var response = await client.GetAsync(AuthHelper.CustomServiceBaseAddress + "/api/Values");
-            var values = await response.Content.ReadAsStringAsync();
-            ViewBag.Values = values;
             return View();
         }
     }

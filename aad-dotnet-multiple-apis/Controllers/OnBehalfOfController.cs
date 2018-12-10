@@ -29,17 +29,25 @@ namespace aad_dotnet_multiple_apis.Controllers
         {
             var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
 
-            var accessToken = await authHelper.GetTokenForApplication(AuthHelper.CustomServiceResourceId);
+            try
+            {
+                var accessToken = await authHelper.GetTokenForApplication(AuthHelper.CustomServiceResourceId);
+                var client = new HttpClient();
+                client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+                var response = await client.GetAsync(AuthHelper.CustomServiceBaseAddress + "/api/MicrosoftGraph");
 
-            var client = new HttpClient();
-            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            var response = await client.GetAsync(AuthHelper.CustomServiceBaseAddress + "/api/MicrosoftGraph");
+                string responseString = await response.Content.ReadAsStringAsync();
+
+
+                var profile = JsonConvert.DeserializeObject<UserModel>(responseString);
+                return View(profile);
+            }
+            catch(AdalSilentTokenAcquisitionException ee)
+            {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
+            }
+            return View();
             
-            string responseString = await response.Content.ReadAsStringAsync();
-
-
-            var profile = JsonConvert.DeserializeObject<UserModel>(responseString);
-            return View(profile);
         }
     }
 }

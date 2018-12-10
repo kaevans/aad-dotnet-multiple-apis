@@ -144,6 +144,11 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
                         retryCount++;
                         await Task.Delay(1000);
                     }
+                    else
+                    {
+                        //Not transient.
+                        throw;
+                    }
                 }
             } while ((retry == true) && (retryCount < 2));
 

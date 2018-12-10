@@ -1,12 +1,9 @@
 ﻿using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
-using System;
-using System.Collections.Generic;
 using System.Configuration;
-using System.Linq;
 using System.Web;
 
-namespace aad_dotnet_webapi_onbehalfof.App_Start
+namespace aad_dotnet_webapi_onbehalfof
 {
     public class KeyConfig
     {

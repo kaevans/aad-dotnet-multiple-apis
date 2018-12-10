@@ -42,16 +42,14 @@ namespace aad_dotnet_multiple_apis.Controllers
 
                 return View(user);
             }
-            catch (AdalException)
+            catch(AdalSilentTokenAcquisitionException ee)
             {
-                // Return to error page.
-                return View("Error");
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
             }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
-            catch (Exception)
-            {
-                return View("Relogin");
-            }
+            
+            
+            return View();
+            
         }
 
         public void RefreshSession()

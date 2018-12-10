@@ -44,6 +44,8 @@
     "webSiteName": "[concat('webSite', uniqueString(resourceGroup().id))]",
     "apiSiteName": "[concat('apiSite', uniqueString(resourceGroup().id))]",
 
+    "appInsightsName": "[concat('appInsights', uniqueString(resourceGroup().id))]",
+
     "sqlserverName": "[concat('sqlserver', uniqueString(resourceGroup().id))]",
     "collation": "SQL_Latin1_General_CP1_CI_AS",
     "edition": "Basic",
@@ -192,6 +194,24 @@
       }
     },
     {
+      "name": "[variables('appInsightsName')]",
+      "type": "Microsoft.Insights/components",
+      "location": "East US",
+      "apiVersion": "2014-04-01",
+      "dependsOn":
+      [
+
+      ],
+      "tags":
+      {
+        "displayName": "ApplicationInsights"
+      },
+      "properties":
+      {
+        "applicationId": "[variables('appInsightsName')]"
+      }
+    },
+    {
       "apiVersion": "2015-08-01",
       "name": "[variables('webSiteName')]",
       "type": "Microsoft.Web/sites",
@@ -204,7 +224,8 @@
       [
         "[resourceId('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts',variables('storageName'))]",
-        "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]",
+        "[resourceId('Microsoft.Insights/components/',variables('appInsightsName'))]"
       ],
       "tags":
       {
@@ -262,7 +283,8 @@
             "ida:PostLogoutRedirectUri": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
             "StorageAccountUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageName')), '2016-01-01').primaryEndpoints.blob]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
-            "PROJECT": "aad-dotnet-multipleapis"
+            "PROJECT": "aad-dotnet-multipleapis",
+            "InstrumentationKey": "[reference(resourceId('Microsoft.Insights/components/',variables('appInsightsName')), '2014-04-01').InstrumentationKey]"
           }
         },
         {
@@ -349,7 +371,8 @@
             "ida:ClientId": "[parameters('clientId')]",
             "ida:AADInstance": "[parameters('aadInstance')]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
-            "PROJECT": "aad-dotnet-multipleapis"
+            "PROJECT": "aad-dotnet-webapi-onbehalfof\\aad-dotnet-webapi-onbehalfof.csproj",
+            "InstrumentationKey": "[reference(resourceId('Microsoft.Insights/components/',variables('appInsightsName')), '2014-04-01').InstrumentationKey]"
           }
         },
         {
@@ -457,6 +480,89 @@
             }
           }
         ]
+      }
+    },
+    {
+      "name": "[concat('ServerErrors ', 'appInsights')]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01",
+      "dependsOn":
+      [
+        "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+      ],
+      "tags":
+      {
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
+        "displayName": "ServerErrors appInsights"
+      },
+      "properties":
+      {
+        "name": "[concat('ServerErrors ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some server errors, status code 5xx.')]",
+        "isEnabled": false,
+        "condition":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource":
+          {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]",
+            "metricName": "Http5xx"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails":
+          [
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat('ForbiddenRequests ', 'appInsights')]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01",
+      "dependsOn":
+      [
+        "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]"
+      ],
+      "tags":
+      {
+        "displayName": "ForbiddenRequests appInsights"
+      },
+      "properties":
+      {
+        "name": "[concat('ForbiddenRequests ', variables('webSiteName'))]",
+        "description": "[concat(variables('webSiteName'), ' has some requests that are forbidden, status code 403.')]",
+        "isEnabled": false,
+        "condition":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource":
+          {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]",
+            "metricName": "Http403"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails":
+          [
+          ]
+        }
       }
     }
   ],
