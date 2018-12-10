@@ -5,7 +5,7 @@ tenantName='blueskyabove.onmicrosoft.com'
 
 #Create AAD application registration for web API application
 tenantName="${tenantName,,}"
-apiAppIdUrl=https://azurecat/aad-dotnet-webapi-onbehalfof
+apiAppIdUrl=https://$tenantName/aad-dotnet-webapi-onbehalfof
 apiDisplayName='aad-dotnet-webapi-onbehalfof'
 apiClientSecret=$(openssl rand -base64 32)
 az ad app create --display-name $apiDisplayName --homepage https://localhost:44330/ --identifier-uris $apiAppIdUrl --password $apiClientSecret

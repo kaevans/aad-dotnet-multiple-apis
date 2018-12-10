@@ -38,7 +38,7 @@ namespace aad_dotnet_multiple_apis.Models
         public static readonly string AzureManagementResourceId = "https://management.azure.com/";
 
         // Resource ID of the custom web service
-        public static readonly string CustomServiceResourceId = "https://BlueSkyAbove.onmicrosoft.com/aad-dotnet-webapi-onbehalfof";
+        public static string CustomServiceResourceId = "https://" + ConfigurationManager.AppSettings["ida:Domain"] + "/aad-dotnet-webapi-onbehalfof";
 
         private static readonly string SERVICE_UNAVAILABLE = "temporarily_unavailable";
 

@@ -372,7 +372,7 @@
           "properties":
           {
             "ida:Tenant": "[parameters('tenant')]",
-            "ida:Audience": "https://azurecat/aad-dotnet-webapi-onbehalfof",
+            "ida:Audience": "[concat('https://',toLower(parameters('tenant')), '/aad-dotnet-webapi-onbehalfof')]",
             "ida:ClientId": "[parameters('apiClientId')]",
             "ida:AADInstance": "[parameters('aadInstance')]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
