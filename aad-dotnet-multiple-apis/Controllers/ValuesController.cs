@@ -41,9 +41,20 @@ namespace aad_dotnet_multiple_apis.Controllers
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Values");
+                return View("Relogin");
+            }
+            catch(Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
+                return View("Error");
             }
 
             return View();
+        }
+
+        public void RefreshSession()
+        {
+            AuthHelper.RefreshSession("/Values");
         }
     }
 }

@@ -24,6 +24,10 @@
     {
       "type": "string"
     },
+    "apiClientId":
+    {
+      "type": "string"
+    },
     "aadInstance":
     {
 
@@ -368,8 +372,8 @@
           "properties":
           {
             "ida:Tenant": "[parameters('tenant')]",
-            "ida:Audience": "[concat('https://',parameters('tenant'), '/aad-dotnet-webapi-onbehalfof')]",
-            "ida:ClientId": "[parameters('clientId')]",
+            "ida:Audience": "[concat('https://',toLower(parameters('tenant')), '/aad-dotnet-webapi-onbehalfof')]",
+            "ida:ClientId": "[parameters('apiClientId')]",
             "ida:AADInstance": "[parameters('aadInstance')]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
             "PROJECT": "aad-dotnet-webapi-onbehalfof\\aad-dotnet-webapi-onbehalfof.csproj",

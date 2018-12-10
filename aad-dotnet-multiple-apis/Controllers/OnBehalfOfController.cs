@@ -42,12 +42,28 @@ namespace aad_dotnet_multiple_apis.Controllers
                 var profile = JsonConvert.DeserializeObject<UserModel>(responseString);
                 return View(profile);
             }
-            catch(AdalSilentTokenAcquisitionException ee)
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
+                AuthHelper.RefreshSession("/OnBehalfOf");
+                return View("Relogin");
             }
+            catch (Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
+            }
+
+        }
+
+
+        public ActionResult Reconsent()
+        {
+            //Add ability to renew consent, ability to test different scopes
+            AuthHelper.RefreshSession("/OnBehalfOf", true);
+
             return View();
-            
         }
     }
 }

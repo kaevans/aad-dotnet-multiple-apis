@@ -270,6 +270,11 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201812101329056_InitialCreate.cs" />
+    <Compile Include="Migrations\201812101329056_InitialCreate.Designer.cs">
+      <DependentUpon>201812101329056_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AdalTokenCache.cs" />
     <Compile Include="Models\ApplicationDbContext.cs" />
     <Compile Include="Models\AuthHelper.cs" />
@@ -332,12 +337,15 @@
     <Content Include="Views\MicrosoftGraph\Me.cshtml" />
     <Content Include="Views\MicrosoftGraph\Reconsent.cshtml" />
     <Content Include="Views\MicrosoftGraph\Relogin.cshtml" />
-    <Content Include="Views\MicrosoftGraph\View.cshtml" />
     <Content Include="Views\Storage\Index.cshtml" />
     <Content Include="Views\Storage\Relogin.cshtml" />
     <Content Include="Views\Values\Index.cshtml" />
     <Content Include="Views\OnBehalfOf\Index.cshtml" />
     <Content Include="Views\Storage\Details.cshtml" />
+    <Content Include="Views\MicrosoftGraph\Index.cshtml" />
+    <Content Include="Views\ARM\Index.cshtml" />
+    <Content Include="Views\OnBehalfOf\Relogin.cshtml" />
+    <Content Include="Views\Values\Relogin.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -357,6 +365,11 @@
   </ItemGroup>
   <ItemGroup>
     <WCFMetadata Include="Connected Services\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201812101329056_InitialCreate.resx">
+      <DependentUpon>201812101329056_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

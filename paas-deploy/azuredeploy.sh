@@ -4,6 +4,7 @@ location='centralus'
 tenantName='blueskyabove.onmicrosoft.com'
 
 #Create AAD application registration for web API application
+tenantName="${tenantName,,}"
 apiAppIdUrl=https://$tenantName/aad-dotnet-webapi-onbehalfof
 apiDisplayName='aad-dotnet-webapi-onbehalfof'
 apiClientSecret=$(openssl rand -base64 32)
@@ -42,7 +43,7 @@ az group deployment create \
   --name "multiple-apis-deployment" \
   --resource-group $rg \
   --template-file "azuredeploy.json" \
-  --parameters sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId tenant=$tenantName
+  --parameters sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId apiClientId=$apiAppId tenant=$tenantName
 
 #Add the client secrets to the newly created vault
 vaultname=$(az keyvault list --resource-group $rg --query "[0].name" --output tsv)

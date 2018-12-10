@@ -22,8 +22,10 @@ namespace aad_dotnet_webapi_onbehalfof
                     TokenValidationParameters = new TokenValidationParameters {
                         SaveSigninToken = true,
                         ValidAudience = ConfigurationManager.AppSettings["ida:Audience"]
-                    },
-                });
+                    }
+
+                }                
+                );
         }
     }
 }

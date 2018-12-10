@@ -44,20 +44,27 @@ namespace aad_dotnet_multiple_apis.Controllers
                 var response = await client.GetAsync("https://management.azure.com/subscriptions?api-version=2016-06-01");
                 var json = await response.Content.ReadAsStringAsync();
                 subscriptions = JsonConvert.DeserializeObject<SubscriptionModel>(json).Subscriptions;
+
+                return View(subscriptions);
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/ARM");
-            }            
+                return View("Relogin");
+            }                        
             catch (Exception oops)
             {
-                ViewBag.Message = oops.Message;
-                return View("Relogin");
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
             }
-
-            return View("View", subscriptions);
         }
-    }
+
+
+        public void RefreshSession()
+        {
+            AuthHelper.RefreshSession("/ARM");
+        }
+    }    
 }

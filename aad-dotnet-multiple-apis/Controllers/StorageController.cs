@@ -1,5 +1,7 @@
 ﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
+using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.OpenIdConnect;
 using Microsoft.WindowsAzure.Storage.Auth;
 using Microsoft.WindowsAzure.Storage.Blob;
 using System;
@@ -8,6 +10,7 @@ using System.IO;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using System.Web.Mvc;
 
 namespace aad_dotnet_multiple_apis.Controllers
@@ -61,22 +64,21 @@ namespace aad_dotnet_multiple_apis.Controllers
                     }
 
                 } while (blobContinuationToken != null); // Loop while the continuation token is not null.
+
+                return View(items);
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Storage");
-            }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
-            catch (Exception oops)
-            {
-                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
-                ViewBag.Message = oops.Message;
                 return View("Relogin");
             }
-
-            return View("Index", items);
+            catch (Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
+            }
         }
 
         //POST: Storage/Create
@@ -113,22 +115,21 @@ namespace aad_dotnet_multiple_apis.Controllers
                     blob.UploadFromStream(stream, null);
                 }
 
+                return RedirectToAction("Index");
+
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Storage");
-            }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
-            catch (Exception oops)
-            {
-                System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + oops.Message);
-                ViewBag.Message = oops.Message;
                 return View("Relogin");
             }
-
-            return RedirectToAction("Index");
+            catch (Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
+            }
         }
 
 
@@ -148,22 +149,21 @@ namespace aad_dotnet_multiple_apis.Controllers
 
                 blobModel = new StorageModel(blob);
                 blobModel.Contents = await blob.DownloadTextAsync();
+
+                return View(blobModel);
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
-                AuthHelper.RefreshSession("/Storage");
+                AuthHelper.RefreshSession("/ARM");
+                return View("Relogin");
             }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
-                ViewBag.Message = oops.Message;
-                return View("Relogin");
+                return View("Error");
             }
-
-            return View(blobModel);
 
         }
 
@@ -182,11 +182,24 @@ namespace aad_dotnet_multiple_apis.Controllers
                 await blob.DeleteAsync();
                 return RedirectToAction("Index");
             }
-            catch(AdalSilentTokenAcquisitionException ee)
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
-                return View();
+                AuthHelper.RefreshSession("/Storage");
+                return View("Relogin");
             }
+            catch (Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
+            }
+        }
+
+
+        public void RefreshSession()
+        {
+            AuthHelper.RefreshSession("/Storage");
         }
 
     }

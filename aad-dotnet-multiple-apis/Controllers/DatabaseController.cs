@@ -28,27 +28,23 @@ namespace aad_dotnet_multiple_apis.Controllers
                     using (SqlCommand cmd = new SqlCommand("SELECT SUSER_SNAME()", conn))
                     {
                         var result = cmd.ExecuteScalar();
-                        databaseUserID = result.ToString();
+                        ViewBag.DatabaseUserID = result.ToString();
                     }
                 }
+                return View();
             }
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/Database");
+                return View("Relogin");
             }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
-                ViewBag.Message = oops.Message;
-                return View("Relogin");
+                return View("Error");
             }
-
-            ViewBag.DatabaseUserID = databaseUserID;
-            return View();
-
-
         }
     }
 }

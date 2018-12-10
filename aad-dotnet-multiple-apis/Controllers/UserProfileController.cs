@@ -1,13 +1,10 @@
 ﻿using aad_dotnet_multiple_apis.Models;
 using Microsoft.Azure.ActiveDirectory.GraphClient;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
-using Microsoft.Owin.Security;
-using Microsoft.Owin.Security.OpenIdConnect;
 using System;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using System.Web;
 using System.Web.Mvc;
 
 namespace aad_dotnet_multiple_apis.Controllers
@@ -42,21 +39,23 @@ namespace aad_dotnet_multiple_apis.Controllers
 
                 return View(user);
             }
-            catch(AdalSilentTokenAcquisitionException ee)
+            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
+            catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
+                AuthHelper.RefreshSession("/UserProfile");
+                return View("Relogin");
             }
-            
-            
-            return View();
-            
+            catch (Exception oops)
+            {
+                System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                return View("Error");
+            }
         }
 
         public void RefreshSession()
         {
-            HttpContext.GetOwinContext().Authentication.Challenge(
-                new AuthenticationProperties { RedirectUri = "/UserProfile" },
-                OpenIdConnectAuthenticationDefaults.AuthenticationType);
+            AuthHelper.RefreshSession("/UserProfile");
         }
 
         public async Task<string> GetTokenForApplication()
@@ -73,19 +72,5 @@ namespace aad_dotnet_multiple_apis.Controllers
             return authenticationResult.AccessToken;
         }
 
-        private static string EnsureTrailingSlash(string value)
-        {
-            if (value == null)
-            {
-                value = string.Empty;
-            }
-
-            if (!value.EndsWith("/", StringComparison.Ordinal))
-            {
-                return value + "/";
-            }
-
-            return value;
-        }
     }
 }

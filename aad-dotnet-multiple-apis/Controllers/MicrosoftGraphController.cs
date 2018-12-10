@@ -45,22 +45,25 @@ namespace aad_dotnet_multiple_apis.Controllers
                         OnPremisesUserPrincipalName = user.OnPremisesUserPrincipalName
                     });
                 }
+
+                return View(ret);
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/MicrosoftGraph");
+                return View("Relogin");
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
                 ViewBag.Message = oops.Message;
-                return View("Relogin");
+                return View("Error");
             }
 
-            return View("View", ret);
+            
         }
 
         public async Task<ActionResult> Me()
@@ -96,22 +99,21 @@ namespace aad_dotnet_multiple_apis.Controllers
                     OnPremisesUserPrincipalName = user.OnPremisesUserPrincipalName
                 };
 
+                return View(ret);
+
             }
             // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (AdalSilentTokenAcquisitionException ee)
             {
                 System.Diagnostics.Trace.TraceError("AdalSilentTokenAcquisitionException: " + ee.Message);
                 AuthHelper.RefreshSession("/MicrosoftGraph");
+                return View("Relogin");
             }
-            // if the above failed, the user needs to explicitly re-authenticate for the app to obtain the required token
             catch (Exception oops)
             {
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
-                ViewBag.Message = oops.Message;
-                return View("Relogin");
+                return View("Error");
             }
-
-            return View("Me", ret);
         }
 
         public ActionResult Reconsent()
