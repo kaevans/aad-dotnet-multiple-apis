@@ -9,7 +9,7 @@ namespace aad_dotnet_webapi_onbehalfof.Migrations
     {
         public Configuration()
         {
-            AutomaticMigrationsEnabled = false;
+            AutomaticMigrationsEnabled = true;
         }
 
         protected override void Seed(aad_dotnet_webapi_onbehalfof.Models.ApplicationDbContext context)
