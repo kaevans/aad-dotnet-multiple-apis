@@ -11,7 +11,7 @@ namespace aad_dotnet_webapi_onbehalfof.Models
         {
         }
 
-        public DbSet<ApiUserTokenCache> UserTokenCacheList { get; set; }
+        public DbSet<ApiUserTokenCache> ApiUserTokenCacheList { get; set; }
     }
 
     public class ApiUserTokenCache

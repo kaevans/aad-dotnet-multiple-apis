@@ -20,7 +20,7 @@ namespace aad_dotnet_webapi_onbehalfof.Models
             this.BeforeAccess = BeforeAccessNotification;
             this.BeforeWrite = BeforeWriteNotification;
             // look up the entry in the database
-            Cache = db.UserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
+            Cache = db.ApiUserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
             // place the entry in memory
             this.Deserialize((Cache == null) ? null : MachineKey.Unprotect(Cache.cacheBits, "ADALCache"));
         }
@@ -29,8 +29,8 @@ namespace aad_dotnet_webapi_onbehalfof.Models
         public override void Clear()
         {
             base.Clear();
-            var cacheEntry = db.UserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
-            db.UserTokenCacheList.Remove(cacheEntry);
+            var cacheEntry = db.ApiUserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
+            db.ApiUserTokenCacheList.Remove(cacheEntry);
             db.SaveChanges();
         }
 
@@ -41,12 +41,12 @@ namespace aad_dotnet_webapi_onbehalfof.Models
             if (Cache == null)
             {
                 // first time access
-                Cache = db.UserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
+                Cache = db.ApiUserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
             }
             else
             {
                 // retrieve last write from the DB
-                var status = from e in db.UserTokenCacheList
+                var status = from e in db.ApiUserTokenCacheList
                              where (e.webUserUniqueId == userId)
                              select new
                              {
@@ -57,7 +57,7 @@ namespace aad_dotnet_webapi_onbehalfof.Models
                 if (status.First().LastWrite > Cache.LastWrite)
                 {
                     // read from from storage, update in-memory copy
-                    Cache = db.UserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
+                    Cache = db.ApiUserTokenCacheList.FirstOrDefault(c => c.webUserUniqueId == userId);
                 }
             }
             this.Deserialize((Cache == null) ? null : MachineKey.Unprotect(Cache.cacheBits, "ADALCache"));

@@ -321,7 +321,8 @@
       [
         "[resourceId('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts',variables('storageName'))]",
-        "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]"
+        "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]",
+        "[resourceId('Microsoft.Insights/components/',variables('appInsightsName'))]"
       ],
       "tags":
       {
@@ -483,7 +484,7 @@
       }
     },
     {
-      "name": "[concat('ServerErrors ', 'appInsights')]",
+      "name": "[concat(variables('webSiteName'),'ServerErrors')]",
       "type": "Microsoft.Insights/alertrules",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-04-01",
@@ -494,7 +495,7 @@
       "tags":
       {
         "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('webSiteName')))]": "Resource",
-        "displayName": "ServerErrors appInsights"
+        "displayName": "WebApp ServerErrors"
       },
       "properties":
       {
@@ -524,8 +525,8 @@
         }
       }
     },
-    {
-      "name": "[concat('ForbiddenRequests ', 'appInsights')]",
+    {      
+      "name": "[concat(variables('webSiteName'),'ForbiddenRequests')]",
       "type": "Microsoft.Insights/alertrules",
       "location": "[resourceGroup().location]",
       "apiVersion": "2014-04-01",
@@ -535,7 +536,7 @@
       ],
       "tags":
       {
-        "displayName": "ForbiddenRequests appInsights"
+        "displayName": "WebApp ForbiddenRequests"
       },
       "properties":
       {
@@ -549,6 +550,89 @@
           {
             "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
             "resourceUri": "[resourceId('Microsoft.Web/sites', variables('webSiteName'))]",
+            "metricName": "Http403"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails":
+          [
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('apiSiteName'),'ServerErrors')]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01",
+      "dependsOn":
+      [
+        "[resourceId('Microsoft.Web/sites', variables('apiSiteName'))]"
+      ],
+      "tags":
+      {
+        "[concat('hidden-link:', resourceId('Microsoft.Web/sites', variables('apiSiteName')))]": "Resource",
+        "displayName": "API ServerErrors"
+      },
+      "properties":
+      {
+        "name": "[concat(variables('apiSiteName'),'ServerErrors')]",
+        "description": "[concat(variables('apiSiteName'), ' has some server errors, status code 5xx.')]",
+        "isEnabled": false,
+        "condition":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource":
+          {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[resourceId('Microsoft.Web/sites', variables('apiSiteName'))]",
+            "metricName": "Http5xx"
+          },
+          "operator": "GreaterThan",
+          "threshold": 0,
+          "windowSize": "PT5M"
+        },
+        "action":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleEmailAction",
+          "sendToServiceOwners": true,
+          "customEmails":
+          [
+          ]
+        }
+      }
+    },
+    {
+      "name": "[concat(variables('apiSiteName'),'ForbiddenRequests')]",
+      "type": "Microsoft.Insights/alertrules",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2014-04-01",
+      "dependsOn":
+      [
+        "[resourceId('Microsoft.Web/sites', variables('apiSiteName'))]"
+      ],
+      "tags":
+      {
+        "displayName": "API ForbiddenRequests"
+      },
+      "properties":
+      {
+        "name": "[concat('ForbiddenRequests ', variables('apiSiteName'))]",
+        "description": "[concat(variables('apiSiteName'), ' has some requests that are forbidden, status code 403.')]",
+        "isEnabled": false,
+        "condition":
+        {
+          "odata.type": "Microsoft.Azure.Management.Insights.Models.ThresholdRuleCondition",
+          "dataSource":
+          {
+            "odata.type": "Microsoft.Azure.Management.Insights.Models.RuleMetricDataSource",
+            "resourceUri": "[resourceId('Microsoft.Web/sites', variables('apiSiteName'))]",
             "metricName": "Http403"
           },
           "operator": "GreaterThan",
