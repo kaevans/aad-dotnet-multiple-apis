@@ -144,6 +144,11 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
                         retryCount++;
                         await Task.Delay(1000);
                     }
+                    else if(ex.ErrorCode == "invalid_grant")
+                    {
+                        //The user needs to consent to the application. 
+
+                    }
                     else
                     {
                         //Not transient.

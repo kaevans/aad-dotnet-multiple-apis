@@ -66,6 +66,7 @@ namespace aad_dotnet_multiple_apis.Controllers
             
         }
 
+        // GET MicrosoftGraph/Me
         public async Task<ActionResult> Me()
         {
 
@@ -116,12 +117,6 @@ namespace aad_dotnet_multiple_apis.Controllers
             }
         }
 
-        public ActionResult Reconsent()
-        {
-            //Add ability to renew consent, ability to test different scopes
-            AuthHelper.RefreshSession("/MicrosoftGraph", true);
 
-            return View();
-        }
     }
 }

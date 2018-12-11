@@ -4,78 +4,41 @@ Example of using multiple APIs with ADAL to Azure-protected resources.
 
 ## Overview of solution
 
-The solution is an ASP.NET MVC web app that authenticates the user using OpenId Connect with the ADAL library and Azure AD. The app is deployed to an Azure App Service that has been assigned a Managed Service Identity (MSI). This MSI is given permission to an Azure Key Vault where the AAD app's clientSecret is stored, avoiding storing any secrets in configuration. Once the user logs in, you can choose from various APIs in the menu to test accessing various services such as Azure Management API, Azure Storage, Azure SQL Database, Azure AD Graph API, and Microsoft Graph API. The access tokens for the application are stored in an Azure SQL Database.
+The solution is an ASP.NET MVC web app that authenticates the user using OpenId Connect with the ADAL library and Azure AD. The app is deployed to an Azure App Service that has been assigned a Managed Service Identity (MSI).
+
+The MSI is given permission to an Azure Key Vault where the AAD app's clientSecret is stored, avoiding storing any secrets in configuration. 
+
+Once the user logs in, you can choose from various APIs in the menu to test accessing various services such as Azure Management API, Azure Storage, Azure SQL Database, Azure AD Graph API, and Microsoft Graph API.
+
+The cached access tokens for the application are stored in an Azure SQL Database. Click the Purge button on the home page to delete all of the cached tokens to observe the behavior in the code.
+
+The application requires the user to consent to the requested application permissions. If you want to make changes to the requested permissions, you will need to reconsent after the changes are made. Click the Reconsent button on the home screen to reconsent to the new permissions.
 
 ## Deploying the template
 
 To deploy the solution:
 
+- Edit the following values at the top of the `azuredeploy.sh` file:
+
+Variable | Description
+-------- | -----------
+rg | Name of resource group to create where all resources are deployed
+location | Azure region where resources are deployed
+tenantName | Name of your AAD tenant
+
 - Go to the Azure Portal and **open** the Azure Cloud Shell using Bash.
-- Use the upload button to **upload** `manifest.json` and `azuredeploy.json` from the paas-deploy project.
-- Run the following commands, providing your own values for the parameters.
-
-```bash
-#!/bin/bash
-rg='multiple-apis'
-location='centralus'
-appIdUrl='https://manyapitest'
-tenantName='blueskyabove.onmicrosoft.com'
-displayName='manyapisdemo'
-
-#Create AAD application registration
-clientSecret=$(openssl rand -base64 32)
-az ad app create --display-name $displayName --homepage $appIdUrl --identifier-uris $appIdUrl --required-resource-accesses manifest.json --password $clientSecret
-appId=$(az ad app show --id $appIdUrl --query "appId" --output tsv)
-
-#Get user and tenant information
-userUPN=$(az account show --query "user.name" --o tsv)
-userObjectId=$(az ad user show --upn-or-object-id $userUPN --query "objectId" --o tsv)
-tenantId=$(az account show --query "tenantId" --o tsv)
-
-#Generate Azure SQL Database admin password
-sqlAdminLogin='myAdmin'
-sqlPassword=$(openssl rand -base64 32)
-
-#Generate a random GUID for the role assignment ID
-roleAssignmentGuid=$(cat /proc/sys/kernel/random/uuid)
-
-az group create --name $rg --location $location
-
-az group deployment create \
-  --name "multiple-apis-deployment" \
-  --resource-group $rg \
-  --template-file "azuredeploy.json" \
-  --parameters hostingPlanName=$displayName sqlAdminLogin=$sqlAdminLogin sqlAdminPassword=$sqlPassword databaseName=advworks aadUserUPN=$userUPN aadUserObjectID=$userObjectId clientId=$appId tenant=$tenantName roleAssignmentGuid=$roleAssignmentGuid
-
-#Add the app's client secret to the newly created vault
-vaultname=$(az keyvault list --resource-group $rg --query "[0].name" --output tsv)
-az keyvault secret set --vault-name $vaultname --name 'multiple-apis-client-secret' --value $clientSecret
-
-#Add the web app's URL as a reply URL to the registered AAD application
-webapp=https://$(az webapp list --resource-group $rg --query "[0].defaultHostName" --output tsv)
-az ad app update --id $appId --reply-urls $webapp
-```
-
-The same script (`azuredeploy.sh`) is available in the paas-deploy project.
-
-## Deployment parameters description
-
-The following table describes the various parameters used.
-
-Property Name | Description | Sample Value
---- | --- | ---
-hostingPlanName | Name of the App Service plan | kirkeplan
-sqlAdminLogin | The administrator login for the Azure SQL server | myadmin
-sqlAdminPassword | The administrator password for the Azure SQL server | somepassword
-databaseName | The name of the Azure SQL Database | advworks
-aadUserUPN | Your user principal name in Azure AD | kirke@microsoft.com
-aadUserObjectID | The object ID of your user object in Azure AD | 45782e73-012e-4ef3-9ecb-560157c8e927
-clientID | The `appId` of the newly created app registration created prior to deployment | 45782e73-012e-4ef3-9ecb-560157c8e927
-tenant | The Azure AD tenant name | blueskyabove.onmicrosoft.com
-roleAssignmentGuid | A guid that uniquely identifies the assignment of a user to a role. | b1b9fffc-112e-4d14-b0d5-611b16222c05
+- Use the upload button to **upload** `azuredeploy.json` and `azuredeploy.sh` from the paas-deploy project.
+- Deploy the solution using `bash azuredeploy.sh`
 
 ## Running the solution locally
-If you want to run the solution locally, update the web.config file with the `ida:ClientSecret` value for your app registration and set the `deployType` appSetting value to `local`.
+
+If you want to run the solution locally, first deploy the solution as described above. Then open the Application Settings blade for each web application that was deployed and update the corresponding `web.config` file locally. Update the DemoDb connection string for the web project to point to the newly deployed Azure SQL Database, and make sure to enable your client IP in the Azure SQL Database's server firewall rules.
+
+Both the MVC web application and the Web API use Managed Service Identity to communicate with Azure Key Vault. To debug locally, open the solution in Visual Studio 2017 and go to the **Options / Azure Service Authentication / Account Selection** screen. The account that you run as must also have permission to Get secrets from the created Azure Key Vault, which is added for you as part of the ARM template deployment.
+
+![Azure Service Authentication Account Selection screen in Visual Studio 2017](images/azure-service-authentication.png)
 
 ## Troubleshooting
-The deployment from GitHub to the web app occasionally fails. Go to the Azure Portal, find the web app, go to the Deployment Center, and re-deploy the app. And if you figure out why it doesn't consistently deploy, feel free to submit a pull request.
+
+- If you get an error that the `azuredeploy.sh` file has an invalid r character, the line endings have been changed from LF to CRLF. Open the file using Visual Studio Code, and at the bottom right of the screen click on the CRLF to change the end of line sequence to LF.
+- If debugging locally and you try to access the Azure SQL Database page, it will likely fail. Make sure to update the Firewall Rules for the logical server to add your client IP. To ensure this works, open the Azure SQL Database using SQL Server Management Studio and you will be prompted to update the firewall rules.

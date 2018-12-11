@@ -26,10 +26,12 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: Values
         public async Task<ActionResult> Index()
         {
-            var authContext = new AuthenticationContext(AuthHelper.Authority);
-            var clientCredential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
+
             try
             {
+                var authContext = new AuthenticationContext(AuthHelper.Authority);
+                var clientCredential = new ClientCredential(AuthHelper.ClientId, AuthHelper.GetKey());
+
                 System.Diagnostics.Trace.TraceInformation("Requesting token for resource ID: " + AuthHelper.CustomServiceResourceId);
 
                 var result = await authContext.AcquireTokenAsync(AuthHelper.CustomServiceResourceId, clientCredential);

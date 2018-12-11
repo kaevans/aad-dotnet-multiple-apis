@@ -14,12 +14,13 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: Database
         public async Task<ActionResult> Index()
         {
-            var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
-            var sqlConnectionString = ConfigurationManager.ConnectionStrings["DemoDB"].ConnectionString;
-
-            string databaseUserID = default(string);
+            
+            
             try
             {
+                var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
+                var sqlConnectionString = ConfigurationManager.ConnectionStrings["DemoDB"].ConnectionString;
+
                 using (SqlConnection conn = new SqlConnection(sqlConnectionString))
                 {
                     conn.AccessToken = await authHelper.GetTokenForApplication(AuthHelper.AzureSQLDatabaseResourceId);

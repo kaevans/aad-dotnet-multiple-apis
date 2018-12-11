@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Data.Entity;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Web;
 using System.Web.Security;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -99,6 +100,14 @@ namespace aad_dotnet_multiple_apis.Models
         public override void DeleteItem(TokenCacheItem item)
         {
             base.DeleteItem(item);
+        }
+
+        public static async Task<int> PurgeAsync()
+        {
+            ApplicationDbContext context = new ApplicationDbContext();
+
+            context.UserTokenCacheList.RemoveRange(context.UserTokenCacheList);
+            return await context.SaveChangesAsync();
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿@model aad_dotnet_multiple_apis.Models.UserModel
 
-@{
-    ViewBag.Title = "Me";
-}
+
 <div class="page-header">
     <h2>Microsoft Graph</h2>
     <h4>Get current user's profile</h4>
@@ -53,10 +51,6 @@
     <p>
 
         <span>
-            <a href="@Url.Action("Reconsent")" class="btn btn-default">
-                <span class="glyphicon glyphicon-th-list"></span>
-                Reconsent to permissions
-            </a>
             <a href="@Url.Action("Index")" class="btn btn-default">
                 <span class="glyphicon glyphicon-list-alt"></span>
                 Back to List

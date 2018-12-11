@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
+﻿using aad_dotnet_multiple_apis.Models;
+using System.Threading.Tasks;
 using System.Web.Mvc;
 
 namespace aad_dotnet_multiple_apis.Controllers
@@ -14,18 +12,26 @@ namespace aad_dotnet_multiple_apis.Controllers
             return View();
         }
 
-        public ActionResult About()
+        public ActionResult Reconsent()
         {
-            ViewBag.Message = "Your application description page.";
+            //Add ability to renew consent, ability to test different scopes
+            AuthHelper.RefreshSession("/Home", true);
 
             return View();
         }
 
-        public ActionResult Contact()
+        public async Task<ActionResult> Purge()
         {
-            ViewBag.Message = "Your contact page.";
-
-            return View();
+            try
+            {
+                await ADALTokenCache.PurgeAsync();
+                return RedirectToAction("Index");
+            }
+            catch
+            {
+                return View("Error");
+            }
+            
         }
     }
 }

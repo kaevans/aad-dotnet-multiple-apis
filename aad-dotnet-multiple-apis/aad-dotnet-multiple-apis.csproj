@@ -323,8 +323,6 @@
     <Content Include="Views\_ViewStart.cshtml" />
     <Content Include="Views\Shared\Error.cshtml" />
     <Content Include="Views\Shared\_Layout.cshtml" />
-    <Content Include="Views\Home\About.cshtml" />
-    <Content Include="Views\Home\Contact.cshtml" />
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Shared\_LoginPartial.cshtml" />
     <Content Include="Views\Account\SignOutCallback.cshtml" />
@@ -335,7 +333,7 @@
     <Content Include="Views\Database\Index.cshtml" />
     <Content Include="Views\Database\Relogin.cshtml" />
     <Content Include="Views\MicrosoftGraph\Me.cshtml" />
-    <Content Include="Views\MicrosoftGraph\Reconsent.cshtml" />
+    <Content Include="Views\Home\Reconsent.cshtml" />
     <Content Include="Views\MicrosoftGraph\Relogin.cshtml" />
     <Content Include="Views\Storage\Index.cshtml" />
     <Content Include="Views\Storage\Relogin.cshtml" />

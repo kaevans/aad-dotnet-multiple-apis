@@ -30,13 +30,14 @@ namespace aad_dotnet_multiple_apis.Controllers
         // GET: ARM
         public async Task<ActionResult> Index()
         {
-            var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
-
-            var accessToken = await authHelper.GetTokenForApplication(AuthHelper.AzureManagementResourceId);
             List<Subscription> subscriptions = null;
 
             try
             {
+                var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
+
+                var accessToken = await authHelper.GetTokenForApplication(AuthHelper.AzureManagementResourceId);
+
                 //Set the Authorization header to use the access token
                 client.DefaultRequestHeaders.Authorization =
                     new AuthenticationHeaderValue("Bearer", accessToken);                

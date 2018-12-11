@@ -26,11 +26,11 @@ namespace aad_dotnet_multiple_apis.Controllers
 
         // GET: OnBehalfOf
         public async Task<ActionResult> Index()
-        {
-            var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
-
+        {            
             try
             {
+                var authHelper = new AuthHelper(new ADALTokenCache(AuthHelper.ClaimsSignedInUserID));
+
                 var accessToken = await authHelper.GetTokenForApplication(AuthHelper.CustomServiceResourceId);
                 var client = new HttpClient();
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
