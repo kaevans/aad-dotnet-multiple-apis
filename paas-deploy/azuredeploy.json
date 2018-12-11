@@ -227,6 +227,7 @@
       "dependsOn":
       [
         "[resourceId('Microsoft.Web/serverFarms/', variables('hostingPlanName'))]",
+        "[resourceId('Microsoft.Web/sites/', variables('apiSiteName'))]",
         "[resourceId('Microsoft.Storage/storageAccounts',variables('storageName'))]",
         "[resourceId('Microsoft.KeyVault/vaults/',variables('vaultName'))]",
         "[resourceId('Microsoft.Insights/components/',variables('appInsightsName'))]"
@@ -285,6 +286,7 @@
             "ida:TenantId": "[variables('tenantId')]",
             "ida:ReplyUrl": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
             "ida:PostLogoutRedirectUri": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('webSiteName')),'2015-08-01').hostNames[0],'/')]",
+            "CustomServiceBaseAddress": "[concat('https://',reference(concat('Microsoft.Web/sites/', variables('apiSiteName')),'2015-08-01').hostNames[0])]",
             "StorageAccountUrl": "[reference(concat('Microsoft.Storage/storageAccounts/', variables('storageName')), '2016-01-01').primaryEndpoints.blob]",
             "KeyVaultUrl": "[reference(concat('Microsoft.KeyVault/vaults/',variables('vaultName')),'2018-02-14').vaultUri]",
             "PROJECT": "aad-dotnet-multiple-apis\\aad-dotnet-multiple-apis.csproj",

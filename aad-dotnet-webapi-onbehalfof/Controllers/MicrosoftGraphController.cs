@@ -27,10 +27,10 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
         // The AAD Instance is the instance of Azure, for example public Azure or Azure China.
         // The Authority is the sign-in URL of the tenant.
         //
-        private static string aadInstance = ConfigurationManager.AppSettings["ida:AADInstance"];
+        private static string aadInstance = EnsureTrailingSlash(ConfigurationManager.AppSettings["ida:AADInstance"]);
         private static string tenant = ConfigurationManager.AppSettings["ida:Tenant"];
         private static string clientId = ConfigurationManager.AppSettings["ida:ClientID"];
-        
+        private static string authority = aadInstance + tenant;
 
         //
         // To authenticate to the Graph API, the app needs to know the Grah API's App ID URI.
@@ -118,7 +118,7 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
 
             UserAssertion userAssertion = new UserAssertion(userAccessToken, "urn:ietf:params:oauth:grant-type:jwt-bearer", userName);
 
-            string authority = String.Format(CultureInfo.InvariantCulture, aadInstance, tenant);
+            
             string userId = ClaimsPrincipal.Current.FindFirst(ClaimTypes.NameIdentifier).Value;
             AuthenticationContext authContext = new AuthenticationContext(authority, new ADALTokenCache(userId));
 
@@ -144,11 +144,6 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
                         retryCount++;
                         await Task.Delay(1000);
                     }
-                    else if(ex.ErrorCode == "invalid_grant")
-                    {
-                        //The user needs to consent to the application. 
-
-                    }
                     else
                     {
                         //Not transient.
@@ -158,6 +153,21 @@ namespace aad_dotnet_webapi_onbehalfof.Controllers
             } while ((retry == true) && (retryCount < 2));
 
             return accessToken;
+        }
+
+        private static string EnsureTrailingSlash(string value)
+        {
+            if (value == null)
+            {
+                value = string.Empty;
+            }
+
+            if (!value.EndsWith("/", StringComparison.Ordinal))
+            {
+                return value + "/";
+            }
+
+            return value;
         }
     }
 }
