@@ -192,6 +192,7 @@ namespace aad_dotnet_multiple_apis.Controllers
             catch (Exception oops)
             {
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
+                ViewBag.AdditionalInfo = "Make sure the current user has been added to the Azure Blob Storage Contributor role for the resource group.";
                 return View("Error");
             }
         }

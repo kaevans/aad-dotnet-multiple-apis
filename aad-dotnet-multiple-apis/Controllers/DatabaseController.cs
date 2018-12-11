@@ -43,6 +43,7 @@ namespace aad_dotnet_multiple_apis.Controllers
             }
             catch (Exception oops)
             {
+                ViewBag.AdditionalInfo = "Make sure the current user is added to Azure SQL Database";
                 System.Diagnostics.Trace.TraceError("Exception: " + oops.Message);
                 return View("Error");
             }
